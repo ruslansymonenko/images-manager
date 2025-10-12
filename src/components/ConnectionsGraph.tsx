@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import ForceGraph2D from "react-force-graph-2d";
 import { useConnections } from "../contexts/ConnectionContext";
 import { useWorkspace } from "../contexts/WorkspaceContext";
-import { useImages } from "../contexts/ImageContext";
 
 interface GraphNode {
   id: number;
@@ -27,14 +26,7 @@ interface GraphLink {
 const ConnectionsGraph: React.FC = () => {
   const navigate = useNavigate();
   const { currentWorkspace } = useWorkspace();
-  const { refreshImages } = useImages();
-  const {
-    getGraphData,
-    getConnectionStats,
-    refreshConnections,
-    isLoading,
-    error,
-  } = useConnections();
+  const { getGraphData, getConnectionStats } = useConnections();
 
   const [graphData, setGraphData] = useState<{
     nodes: GraphNode[];
@@ -85,16 +77,6 @@ const ConnectionsGraph: React.FC = () => {
     [navigate]
   );
 
-  const refreshData = async () => {
-    try {
-      await refreshImages();
-      await refreshConnections();
-      await loadData();
-    } catch (error) {
-      console.error("Failed to refresh data:", error);
-    }
-  };
-
   const getNodeColor = (node: GraphNode) => {
     const extension = node.extension.toLowerCase();
 
@@ -121,9 +103,9 @@ const ConnectionsGraph: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+    <div className="flex-1 bg-secondary rounded-lg  relative overflow-hidden shadow-md">
       {/* Legend */}
-      <div className="absolute top-4 left-4 z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-sm">
+      <div className="absolute top-4 left-4 z-10 bg-tertiary rounded-lg p-3 shadow-md">
         <h4 className="text-sm font-medium text-primary mb-2">Legend</h4>
         <div className="space-y-1 text-xs">
           <div className="flex items-center gap-2">

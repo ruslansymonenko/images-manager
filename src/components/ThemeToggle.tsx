@@ -69,8 +69,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ className = "" }) => {
             }
           `}
         >
-          <Sun className="w-5 h-5" />
-          <span className="font-medium">Light</span>
+          <Sun className="w-5 h-5 text-primary" />
+          <span className="font-medium text-primary">Light</span>
         </button>
 
         <button
@@ -84,8 +84,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ className = "" }) => {
             }
           `}
         >
-          <Moon className="w-5 h-5" />
-          <span className="font-medium">Dark</span>
+          <Moon className="w-5 h-5 text-primary" />
+          <span className="font-medium text-primary">Dark</span>
         </button>
       </div>
 
