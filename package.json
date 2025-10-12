@@ -2,6 +2,8 @@
   "name": "images-manager",
   "private": true,
   "version": "0.1.0",
+  "description": "Images Manager",
+  "author": "Ruslan Symonenko",
   "type": "module",
   "scripts": {
     "dev": "vite",
