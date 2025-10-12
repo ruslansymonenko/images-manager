@@ -18,18 +18,18 @@ const ImageDetailsDates: React.FC<Props> = ({ currentImage }) => {
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-secondary mb-2">
           Last Modified
         </label>
-        <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+        <p className="text-secondary bg-tertiary p-3 rounded-md">
           {formatDate(currentImage.modified_at)}
         </p>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-secondary mb-2">
           Added to Database
         </label>
-        <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+        <p className="text-secondary bg-tertiary p-3 rounded-md">
           {formatDate(currentImage.created_at || currentImage.updated_at || "")}
         </p>
       </div>

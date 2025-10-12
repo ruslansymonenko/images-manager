@@ -8,6 +8,7 @@ import { Tag } from "../utils/database";
 import ImageDetailsTags from "../components/ImageDetailsTags";
 import ImageDetailsDates from "../components/ImageDetailsDates";
 import { ImageConnections } from "../components";
+import { notify } from "../utils/notifications";
 
 const ImageDetailsPage: React.FC = () => {
   const { imagePath } = useParams<{ imagePath: string }>();
@@ -138,10 +139,8 @@ const ImageDetailsPage: React.FC = () => {
   if (!currentWorkspace) {
     return (
       <div className="p-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          Image Details
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <h1 className="text-2xl font-bold text-primary mb-4">Image Details</h1>
+        <p className="text-secondary ">
           Please open a workspace to view image details.
         </p>
       </div>
@@ -151,10 +150,10 @@ const ImageDetailsPage: React.FC = () => {
   if (!imageToDisplay) {
     return (
       <div className="p-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+        <h1 className="text-2xl font-bold text-primary mb-4">
           Image Not Found
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-secondary mb-4">
           The requested image could not be found.
         </p>
         <button
@@ -189,12 +188,12 @@ const ImageDetailsPage: React.FC = () => {
         imageToDisplay.relative_path
       );
       setIsEditing(false);
-      
+
       // Clear connections cache for this image since the path may have changed
       if (imageToDisplay.id) {
         clearImageConnectionsCache(imageToDisplay.id);
       }
-      
+
       // The URL will be updated automatically by the useEffect when the image state changes
     } catch (error) {
       console.error("Failed to rename image:", error);
@@ -214,17 +213,18 @@ const ImageDetailsPage: React.FC = () => {
 
     try {
       setIsDeleting(true);
-      
+
       // Clear connections cache for this image before deletion
       if (imageToDisplay.id) {
         clearImageConnectionsCache(imageToDisplay.id);
       }
-      
+
       await deleteImage(imageToDisplay.relative_path);
+      notify.success("Image deleted successfully");
       navigate("/gallery");
     } catch (error) {
       console.error("Failed to delete image:", error);
-      alert("Failed to delete image. Please try again.");
+      notify.error("Failed to delete image. Please try again.");
       setIsDeleting(false);
     }
   };
@@ -245,7 +245,7 @@ const ImageDetailsPage: React.FC = () => {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate("/gallery")}
-            className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+            className="p-2 text-secondary transition-colors"
           >
             <svg
               className="w-6 h-6"
@@ -261,9 +261,7 @@ const ImageDetailsPage: React.FC = () => {
               />
             </svg>
           </button>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Image Details
-          </h1>
+          <h1 className="text-2xl font-bold text-primary">Image Details</h1>
         </div>
 
         <div className="flex gap-2">
@@ -289,7 +287,7 @@ const ImageDetailsPage: React.FC = () => {
         <div className="space-y-4">
           <div className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
             {imageError ? (
-              <div className="w-full h-96 flex items-center justify-center text-gray-400 dark:text-gray-500">
+              <div className="w-full h-96 flex items-center justify-center text-secondary p-4">
                 <div className="text-center">
                   <svg
                     className="w-16 h-16 mx-auto mb-4"
@@ -322,7 +320,7 @@ const ImageDetailsPage: React.FC = () => {
         <div className="space-y-6">
           {/* File Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-secondary mb-2">
               File Name
             </label>
             {isEditing ? (
@@ -332,7 +330,7 @@ const ImageDetailsPage: React.FC = () => {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   onKeyDown={handleKeyPress}
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 rounded-md bg-white dark:bg-gray-800 text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500"
                   autoFocus
                 />
                 <button
@@ -352,7 +350,7 @@ const ImageDetailsPage: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <p className="text-gray-900 dark:text-gray-100 font-mono bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+              <p className="text-secondary font-mono bg-tertiary p-3 rounded-md">
                 {imageToDisplay.name}
               </p>
             )}
@@ -360,10 +358,10 @@ const ImageDetailsPage: React.FC = () => {
 
           {/* File Path */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-secondary mb-2">
               Path
             </label>
-            <p className="text-gray-900 dark:text-gray-100 font-mono bg-gray-50 dark:bg-gray-800 p-3 rounded-md break-all">
+            <p className="text-secondary font-mono bg-tertiary p-3 rounded-md break-all">
               {imageToDisplay.relative_path}
             </p>
           </div>
@@ -371,18 +369,18 @@ const ImageDetailsPage: React.FC = () => {
           {/* File Details */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-secondary mb-2">
                 File Size
               </label>
-              <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+              <p className="text-secondary bg-tertiary p-3 rounded-md">
                 {formatFileSize(imageToDisplay.file_size)}
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-secondary mb-2">
                 Format
               </label>
-              <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-3 rounded-md uppercase">
+              <p className="text-secondary bg-tertiary p-3 rounded-md uppercase">
                 {imageToDisplay.extension}
               </p>
             </div>

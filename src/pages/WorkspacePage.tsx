@@ -4,7 +4,7 @@ import { FolderOpen, ArrowLeft } from "lucide-react";
 import { Button } from "../components";
 import { useWorkspace } from "../contexts/WorkspaceContext";
 import WorkspaceInfoCard from "../components/WorkspaceInfoCard";
-import DatabaseStatusCard from "../components/WorkspaceStatusCard";
+import WorkspaceStatusCard from "../components/WorkspaceStatusCard";
 
 interface Props {}
 
@@ -44,20 +44,18 @@ const WorkspacePage: React.FC<Props> = () => {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          Workspace
-        </h1>
+        <h1 className="text-2xl font-bold text-primary">Workspace</h1>
         <Button variant="secondary" onClick={handleCloseWorkspace}>
           Close Workspace
         </Button>
       </div>
 
       <WorkspaceInfoCard currentWorkspace={currentWorkspace} />
-      <DatabaseStatusCard />
+      <WorkspaceStatusCard />
 
       {/* Quick Actions */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-tertiary rounded-lg shadow-sm p-6">
+        <h3 className="text-lg font-semibold text-primary mb-4">
           Quick Actions
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -28,23 +28,19 @@ const GallerySearch: React.FC<Props> = ({
   return (
     <div className="mb-6 space-y-4">
       {/* Tag Filter Section */}
-      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+      <div className="bg-tertiary p-4 rounded-lg">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Filter by Tags
-          </h3>
+          <h3 className="text-sm font-medium text-primary">Filter by Tags</h3>
           {selectedTagIds.length > 0 && (
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-600 dark:text-gray-400">
-                  Mode:
-                </label>
+                <label className="text-xs text-secondary">Mode:</label>
                 <select
                   value={filterMode}
                   onChange={(e) =>
                     setFilterMode(e.target.value as "and" | "or")
                   }
-                  className="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  className="text-xs input-base"
                 >
                   <option value="and">AND (all tags)</option>
                   <option value="or">OR (any tag)</option>
@@ -52,7 +48,8 @@ const GallerySearch: React.FC<Props> = ({
               </div>
               <button
                 onClick={clearTagFilter}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                className="text-xs hover:underline"
+                style={{ color: "var(--color-interactive-primary)" }}
               >
                 Clear all
               </button>
@@ -79,14 +76,14 @@ const GallerySearch: React.FC<Props> = ({
             placeholder="Search images..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full input-base"
           />
         </div>
         <div className="w-48">
           <select
             value={selectedExtension}
             onChange={(e) => setSelectedExtension(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full input-base"
           >
             <option value="all">All formats</option>
             {uniqueExtensions.map((ext) => (
