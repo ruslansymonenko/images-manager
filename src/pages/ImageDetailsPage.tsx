@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useImages } from "../contexts/ImageContext";
 import { useWorkspace } from "../contexts/WorkspaceContext";
 import { useTag } from "../contexts/TagContext";
+import { useConnections } from "../contexts/ConnectionContext";
 import { Tag } from "../utils/database";
 import ImageDetailsTags from "../components/ImageDetailsTags";
 import ImageDetailsDates from "../components/ImageDetailsDates";
@@ -15,6 +16,7 @@ const ImageDetailsPage: React.FC = () => {
   const { images, selectImage, getImageAsBase64, renameImage, deleteImage } =
     useImages();
   const { getTagsForImage, addTagToImage, removeTagFromImage } = useTag();
+  const { clearImageConnectionsCache } = useConnections();
 
   const [imageSrc, setImageSrc] = useState<string>("");
   const [imageError, setImageError] = useState(false);
@@ -187,6 +189,12 @@ const ImageDetailsPage: React.FC = () => {
         imageToDisplay.relative_path
       );
       setIsEditing(false);
+      
+      // Clear connections cache for this image since the path may have changed
+      if (imageToDisplay.id) {
+        clearImageConnectionsCache(imageToDisplay.id);
+      }
+      
       // The URL will be updated automatically by the useEffect when the image state changes
     } catch (error) {
       console.error("Failed to rename image:", error);
@@ -206,6 +214,12 @@ const ImageDetailsPage: React.FC = () => {
 
     try {
       setIsDeleting(true);
+      
+      // Clear connections cache for this image before deletion
+      if (imageToDisplay.id) {
+        clearImageConnectionsCache(imageToDisplay.id);
+      }
+      
       await deleteImage(imageToDisplay.relative_path);
       navigate("/gallery");
     } catch (error) {

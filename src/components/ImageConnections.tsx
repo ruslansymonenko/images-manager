@@ -36,9 +36,10 @@ const ImageConnections: React.FC<Props> = ({ currentImage }) => {
 
   useEffect(() => {
     if (currentImage?.id) {
-      loadConnections();
+      // Force refresh connections when the image path changes (after rename)
+      loadConnections(true);
     }
-  }, [currentImage?.id]);
+  }, [currentImage?.id, currentImage?.relative_path]);
 
   useEffect(() => {
     // Filter out the current image from available images
