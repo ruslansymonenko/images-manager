@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderClosed } from "lucide-react";
 import { Button } from "../components";
@@ -7,6 +8,7 @@ interface Props {}
 
 const MainPage: React.FC<Props> = () => {
   const [folderPath, setFolderPath] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const openFolder = async () => {
     const folder = await open({
@@ -19,6 +21,14 @@ const MainPage: React.FC<Props> = () => {
     }
 
     console.log(folder);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (folderPath) {
+      // Navigate to workspace page after selecting folder
+      navigate("/workspace");
+    }
   };
 
   return (
@@ -37,7 +47,7 @@ const MainPage: React.FC<Props> = () => {
             </p>
           </div>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="workspace-path"
