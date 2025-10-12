@@ -1,7 +1,14 @@
 import Database from "@tauri-apps/plugin-sql";
 import { WorkspaceManager } from "./workspace";
 import { ImageManager } from "./image";
-import { Workspace, ImageFile } from "./types";
+import { TagManager } from "./tag";
+import {
+  Workspace,
+  ImageFile,
+  Tag,
+  ImageWithTags,
+  TagWithImageCount,
+} from "./types";
 
 /**
  * Main DatabaseManager that coordinates all domain-specific managers
@@ -10,10 +17,12 @@ import { Workspace, ImageFile } from "./types";
 class DatabaseManager {
   private workspaceManager: WorkspaceManager;
   private imageManager: ImageManager;
+  private tagManager: TagManager;
 
   constructor() {
     this.workspaceManager = new WorkspaceManager();
     this.imageManager = new ImageManager();
+    this.tagManager = new TagManager();
   }
 
   async initMainDatabase(): Promise<void> {
@@ -47,8 +56,10 @@ class DatabaseManager {
   async openWorkspace(workspacePath: string): Promise<Workspace> {
     const workspace = await this.workspaceManager.openWorkspace(workspacePath);
 
-    // Sync the workspace database connection to the image manager
+    // Sync the workspace database connection to the image and tag managers
     this.imageManager["workspaceDb"] =
+      this.workspaceManager.getWorkspaceDatabase();
+    this.tagManager["workspaceDb"] =
       this.workspaceManager.getWorkspaceDatabase();
 
     return workspace;
@@ -59,8 +70,10 @@ class DatabaseManager {
       workspacePath
     );
 
-    // Sync the workspace database connection to the image manager
+    // Sync the workspace database connection to the image and tag managers
     this.imageManager["workspaceDb"] =
+      this.workspaceManager.getWorkspaceDatabase();
+    this.tagManager["workspaceDb"] =
       this.workspaceManager.getWorkspaceDatabase();
 
     return dbPath;
@@ -69,6 +82,7 @@ class DatabaseManager {
   async closeWorkspaceDatabase(): Promise<void> {
     await this.workspaceManager.closeWorkspaceDatabase();
     this.imageManager["workspaceDb"] = null;
+    this.tagManager["workspaceDb"] = null;
   }
 
   // Image-related methods
@@ -143,6 +157,68 @@ class DatabaseManager {
     return this.imageManager.getImageAsBase64(relativePath, workspacePath);
   }
 
+  // Tag-related methods
+  async createTag(
+    tag: Omit<Tag, "id" | "created_at" | "updated_at">
+  ): Promise<number> {
+    return this.tagManager.createTag(tag);
+  }
+
+  async getAllTags(): Promise<Tag[]> {
+    return this.tagManager.getAllTags();
+  }
+
+  async getAllTagsWithImageCount(): Promise<TagWithImageCount[]> {
+    return this.tagManager.getAllTagsWithImageCount();
+  }
+
+  async getTagById(id: number): Promise<Tag | null> {
+    return this.tagManager.getTagById(id);
+  }
+
+  async updateTag(
+    id: number,
+    updates: Partial<Omit<Tag, "id" | "created_at" | "updated_at">>
+  ): Promise<void> {
+    return this.tagManager.updateTag(id, updates);
+  }
+
+  async deleteTag(id: number): Promise<void> {
+    return this.tagManager.deleteTag(id);
+  }
+
+  async addTagToImage(imageId: number, tagId: number): Promise<void> {
+    return this.tagManager.addTagToImage(imageId, tagId);
+  }
+
+  async removeTagFromImage(imageId: number, tagId: number): Promise<void> {
+    return this.tagManager.removeTagFromImage(imageId, tagId);
+  }
+
+  async getTagsForImage(imageId: number): Promise<Tag[]> {
+    return this.tagManager.getTagsForImage(imageId);
+  }
+
+  async getAllImagesWithTags(): Promise<ImageWithTags[]> {
+    return this.tagManager.getAllImagesWithTags();
+  }
+
+  async getImagesByTags(tagIds: number[]): Promise<ImageWithTags[]> {
+    return this.tagManager.getImagesByTags(tagIds);
+  }
+
+  async getImagesByTagsOr(tagIds: number[]): Promise<ImageWithTags[]> {
+    return this.tagManager.getImagesByTagsOr(tagIds);
+  }
+
+  async searchTags(query: string): Promise<Tag[]> {
+    return this.tagManager.searchTags(query);
+  }
+
+  async tagNameExists(name: string, excludeId?: number): Promise<boolean> {
+    return this.tagManager.tagNameExists(name, excludeId);
+  }
+
   // Database accessor methods
   getWorkspaceDatabase(): Database | null {
     return this.workspaceManager.getWorkspaceDatabase();
@@ -159,6 +235,10 @@ class DatabaseManager {
 
   getImageManager(): ImageManager {
     return this.imageManager;
+  }
+
+  getTagManager(): TagManager {
+    return this.tagManager;
   }
 }
 

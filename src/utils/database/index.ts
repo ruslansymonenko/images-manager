@@ -4,6 +4,7 @@ export * from "./types";
 export { BaseDatabaseManager } from "./base";
 export { WorkspaceManager } from "./workspace";
 export { ImageManager } from "./image";
+export { TagManager } from "./tag";
 
 // Export the main database manager (primary interface)
 export { databaseManager } from "./manager";

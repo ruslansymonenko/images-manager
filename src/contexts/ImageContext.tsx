@@ -12,6 +12,7 @@ interface ImageContextType {
   images: ImageFile[];
   selectedImage: ImageFile | null;
   isLoading: boolean;
+  loadImages: () => Promise<void>;
   scanImages: () => Promise<void>;
   refreshImages: () => Promise<void>;
   moveImage: (oldPath: string, newPath: string) => Promise<void>;
@@ -38,15 +39,53 @@ export const ImageProvider: React.FC<ImageProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { currentWorkspace } = useWorkspace();
 
-  // Auto-scan images when workspace changes
+  // Auto-load images when workspace changes
   useEffect(() => {
     if (currentWorkspace) {
-      scanImages();
+      loadImages();
     } else {
       setImages([]);
       setSelectedImage(null);
     }
   }, [currentWorkspace]);
+
+  const loadImages = async () => {
+    if (!currentWorkspace) {
+      console.warn("No workspace available for loading images");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      console.log(
+        "Loading images from database for workspace:",
+        currentWorkspace.absolute_path
+      );
+
+      // First try to load existing images from database
+      const existingImages = await databaseManager.getAllImages();
+
+      if (existingImages.length > 0) {
+        setImages(existingImages);
+        console.log(`Loaded ${existingImages.length} images from database`);
+      } else {
+        // If no images in database, do a full scan
+        console.log("No images in database, performing initial scan");
+        await scanImages();
+      }
+    } catch (error) {
+      console.error("Failed to load images:", error);
+      // If loading fails, fall back to scanning
+      try {
+        await scanImages();
+      } catch (scanError) {
+        console.error("Failed to scan images as fallback:", scanError);
+        throw scanError;
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const scanImages = async () => {
     if (!currentWorkspace) {
@@ -55,7 +94,6 @@ export const ImageProvider: React.FC<ImageProviderProps> = ({ children }) => {
     }
 
     try {
-      setIsLoading(true);
       console.log(
         "Scanning images in workspace:",
         currentWorkspace.absolute_path
@@ -70,8 +108,6 @@ export const ImageProvider: React.FC<ImageProviderProps> = ({ children }) => {
     } catch (error) {
       console.error("Failed to scan images:", error);
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -228,6 +264,7 @@ export const ImageProvider: React.FC<ImageProviderProps> = ({ children }) => {
     images,
     selectedImage,
     isLoading,
+    loadImages,
     scanImages,
     refreshImages,
     moveImage,

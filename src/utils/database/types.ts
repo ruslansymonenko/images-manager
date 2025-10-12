@@ -33,3 +33,26 @@ export interface RenameImageRequest {
   relative_path: string;
   workspace_path: string;
 }
+
+export interface Tag {
+  id?: number;
+  name: string;
+  color?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ImageTag {
+  id?: number;
+  image_id: number;
+  tag_id: number;
+  created_at?: string;
+}
+
+export interface ImageWithTags extends ImageFile {
+  tags?: Tag[];
+}
+
+export interface TagWithImageCount extends Tag {
+  image_count: number;
+}

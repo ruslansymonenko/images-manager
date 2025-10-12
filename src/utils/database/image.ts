@@ -16,9 +16,43 @@ export class ImageManager extends BaseDatabaseManager {
         workspacePath: workspacePath,
       });
 
-      await this.workspaceDb.execute("DELETE FROM images");
+      // Get existing images from database
+      const existingImages = await this.workspaceDb.select<ImageFile[]>(
+        "SELECT * FROM images"
+      );
 
-      for (const image of scannedImages) {
+      // Create maps for easier lookup
+      const scannedImageMap = new Map(
+        scannedImages.map((img) => [img.relative_path, img])
+      );
+      const existingImageMap = new Map(
+        existingImages.map((img) => [img.relative_path, img])
+      );
+
+      // Find new images to insert
+      const imagesToInsert = scannedImages.filter(
+        (img) => !existingImageMap.has(img.relative_path)
+      );
+
+      // Find images to update (existing but with different metadata)
+      const imagesToUpdate = scannedImages.filter((img) => {
+        const existing = existingImageMap.get(img.relative_path);
+        return (
+          existing &&
+          (existing.name !== img.name ||
+            existing.file_size !== img.file_size ||
+            existing.extension !== img.extension ||
+            existing.modified_at !== img.modified_at)
+        );
+      });
+
+      // Find images to remove (exist in DB but not on disk)
+      const imagesToRemove = existingImages.filter(
+        (img) => !scannedImageMap.has(img.relative_path)
+      );
+
+      // Insert new images
+      for (const image of imagesToInsert) {
         await this.workspaceDb.execute(
           `INSERT INTO images (name, relative_path, file_size, extension, modified_at, created_at, updated_at)
            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
@@ -32,8 +66,41 @@ export class ImageManager extends BaseDatabaseManager {
         );
       }
 
-      console.log(`Stored ${scannedImages.length} images in database`);
-      return scannedImages;
+      // Update existing images
+      for (const image of imagesToUpdate) {
+        await this.workspaceDb.execute(
+          `UPDATE images SET 
+           name = ?, 
+           file_size = ?, 
+           extension = ?, 
+           modified_at = ?, 
+           updated_at = CURRENT_TIMESTAMP 
+           WHERE relative_path = ?`,
+          [
+            image.name,
+            image.file_size,
+            image.extension,
+            image.modified_at,
+            image.relative_path,
+          ]
+        );
+      }
+
+      // Remove images that no longer exist on disk
+      // This will also remove their tag associations due to CASCADE
+      for (const image of imagesToRemove) {
+        await this.workspaceDb.execute(
+          "DELETE FROM images WHERE relative_path = ?",
+          [image.relative_path]
+        );
+      }
+
+      console.log(
+        `Image scan complete: ${imagesToInsert.length} new, ${imagesToUpdate.length} updated, ${imagesToRemove.length} removed`
+      );
+
+      // Return the current state of images in the database
+      return await this.getAllImages();
     } catch (error) {
       console.error("Failed to scan and store images:", error);
       throw error;

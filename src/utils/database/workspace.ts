@@ -38,6 +38,28 @@ export class WorkspaceManager extends BaseDatabaseManager {
         )
       `);
 
+      await this.workspaceDb.execute(`
+        CREATE TABLE IF NOT EXISTS tags (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE,
+          color TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      await this.workspaceDb.execute(`
+        CREATE TABLE IF NOT EXISTS image_tags (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          image_id INTEGER NOT NULL,
+          tag_id INTEGER NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (image_id) REFERENCES images (id) ON DELETE CASCADE,
+          FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE,
+          UNIQUE (image_id, tag_id)
+        )
+      `);
+
       await this.workspaceDb.execute(
         `INSERT OR REPLACE INTO workspace_info (key, value, updated_at) 
          VALUES (?, ?, CURRENT_TIMESTAMP)`,
