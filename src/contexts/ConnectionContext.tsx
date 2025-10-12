@@ -18,7 +18,10 @@ interface ConnectionContextType {
   // Actions
   createConnection: (imageAId: number, imageBId: number) => Promise<void>;
   removeConnection: (imageAId: number, imageBId: number) => Promise<void>;
-  getConnectionsForImage: (imageId: number) => Promise<ImageConnection[]>;
+  getConnectionsForImage: (
+    imageId: number,
+    forceRefresh?: boolean
+  ) => Promise<ImageConnection[]>;
   refreshConnections: () => Promise<void>;
   checkConnectionExists: (
     imageAId: number,
@@ -29,6 +32,7 @@ interface ConnectionContextType {
     connectedImages: number;
   }>;
   getGraphData: () => Promise<{ nodes: any[]; links: any[] }>;
+  clearImageConnectionsCache: (imageId: number) => void;
   clearError: () => void;
 }
 
@@ -49,6 +53,14 @@ export const ConnectionProvider: React.FC<ConnectionProviderProps> = ({
   >({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const clearImageConnectionsCache = useCallback((imageId: number) => {
+    setImageConnections((prev) => {
+      const updated = { ...prev };
+      delete updated[imageId];
+      return updated;
+    });
+  }, []);
 
   const clearError = useCallback(() => {
     setError(null);
@@ -81,16 +93,16 @@ export const ConnectionProvider: React.FC<ConnectionProviderProps> = ({
       try {
         await databaseManager.createConnection(imageAId, imageBId);
 
-        // Refresh connections and affected image connections
-        await refreshConnections();
-
-        // Clear cached connections for both images
+        // Clear cached connections for both images immediately
         setImageConnections((prev) => {
           const updated = { ...prev };
           delete updated[imageAId];
           delete updated[imageBId];
           return updated;
         });
+
+        // Refresh connections
+        await refreshConnections();
 
         console.log("Connection created successfully");
       } catch (error) {
@@ -111,16 +123,16 @@ export const ConnectionProvider: React.FC<ConnectionProviderProps> = ({
       try {
         await databaseManager.removeConnection(imageAId, imageBId);
 
-        // Refresh connections and affected image connections
-        await refreshConnections();
-
-        // Clear cached connections for both images
+        // Clear cached connections for both images immediately
         setImageConnections((prev) => {
           const updated = { ...prev };
           delete updated[imageAId];
           delete updated[imageBId];
           return updated;
         });
+
+        // Refresh connections
+        await refreshConnections();
 
         console.log("Connection removed successfully");
       } catch (error) {
@@ -134,9 +146,9 @@ export const ConnectionProvider: React.FC<ConnectionProviderProps> = ({
   );
 
   const getConnectionsForImage = useCallback(
-    async (imageId: number) => {
-      // Return cached connections if available
-      if (imageConnections[imageId]) {
+    async (imageId: number, forceRefresh: boolean = false) => {
+      // Return cached connections if available and not forcing refresh
+      if (!forceRefresh && imageConnections[imageId]) {
         return imageConnections[imageId];
       }
 
@@ -207,6 +219,7 @@ export const ConnectionProvider: React.FC<ConnectionProviderProps> = ({
     checkConnectionExists,
     getConnectionStats,
     getGraphData,
+    clearImageConnectionsCache,
     clearError,
   };
 

@@ -46,12 +46,15 @@ const ImageConnections: React.FC<Props> = ({ currentImage }) => {
     setAvailableImages(filtered);
   }, [images, currentImage?.id]);
 
-  const loadConnections = async () => {
+  const loadConnections = async (forceRefresh: boolean = false) => {
     if (!currentImage?.id) return;
 
     setIsLoadingConnections(true);
     try {
-      const imageConnections = await getConnectionsForImage(currentImage.id);
+      const imageConnections = await getConnectionsForImage(
+        currentImage.id,
+        forceRefresh
+      );
       setConnections(imageConnections);
     } catch (error) {
       console.error("Failed to load connections:", error);
@@ -122,7 +125,8 @@ const ImageConnections: React.FC<Props> = ({ currentImage }) => {
       await createConnection(currentImage.id, selectedImageId);
       setShowAddConnection(false);
       setSelectedImageId(null);
-      await loadConnections();
+      // Force refresh connections from database
+      await loadConnections(true);
     } catch (error) {
       console.error("Failed to add connection:", error);
     }
@@ -137,7 +141,8 @@ const ImageConnections: React.FC<Props> = ({ currentImage }) => {
 
     try {
       await removeConnection(currentImage.id, connectedImageId);
-      await loadConnections();
+      // Force refresh connections from database
+      await loadConnections(true);
     } catch (error) {
       console.error("Failed to remove connection:", error);
     }
