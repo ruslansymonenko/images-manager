@@ -13,14 +13,12 @@ class DatabaseManager {
   private mainDb: Database | null = null;
   private workspaceDb: Database | null = null;
 
-  // Ensure main database connection is valid
   private async ensureMainDbConnection(): Promise<Database> {
     if (!this.mainDb) {
       console.log("Main database not initialized, initializing now...");
       await this.initMainDatabase();
     }
 
-    // Test the connection with a simple query
     try {
       await this.mainDb!.select("SELECT 1");
     } catch (error) {
@@ -36,15 +34,12 @@ class DatabaseManager {
     return this.mainDb;
   }
 
-  // Initialize main app database
   async initMainDatabase(): Promise<void> {
     try {
-      // First, try to load the database
       console.log("Loading main database...");
       this.mainDb = await Database.load("sqlite:main.db");
       console.log("Main database loaded successfully");
 
-      // Then try to execute the schema creation
       console.log("Creating workspaces table...");
       await this.mainDb.execute(`
         CREATE TABLE IF NOT EXISTS workspaces (
@@ -64,18 +59,14 @@ class DatabaseManager {
     }
   }
 
-  // Initialize workspace-specific database
   async initWorkspaceDatabase(workspacePath: string): Promise<string> {
     try {
-      // Ensure workspace structure and get database path
       const dbPath: string = await invoke("ensure_workspace_structure", {
         workspacePath,
       });
 
-      // Load the workspace database
       this.workspaceDb = await Database.load(`sqlite:${dbPath}`);
 
-      // Create basic tables for future use
       await this.workspaceDb.execute(`
         CREATE TABLE IF NOT EXISTS workspace_info (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -86,7 +77,6 @@ class DatabaseManager {
         )
       `);
 
-      // Store workspace initialization info
       await this.workspaceDb.execute(
         `INSERT OR REPLACE INTO workspace_info (key, value, updated_at) 
          VALUES (?, ?, CURRENT_TIMESTAMP)`,
@@ -101,12 +91,10 @@ class DatabaseManager {
     }
   }
 
-  // Add a new workspace to the main database
   async addWorkspace(workspace: Omit<Workspace, "id">): Promise<number> {
     const db = await this.ensureMainDbConnection();
 
     try {
-      // Validate workspace path
       await invoke("validate_workspace_path", {
         path: workspace.absolute_path,
       });
@@ -125,7 +113,6 @@ class DatabaseManager {
     }
   }
 
-  // Get all workspaces from the main database
   async getAllWorkspaces(): Promise<Workspace[]> {
     const db = await this.ensureMainDbConnection();
 
@@ -140,7 +127,6 @@ class DatabaseManager {
     }
   }
 
-  // Get workspace by path
   async getWorkspaceByPath(path: string): Promise<Workspace | null> {
     const db = await this.ensureMainDbConnection();
 
@@ -156,7 +142,6 @@ class DatabaseManager {
     }
   }
 
-  // Update workspace's updated_at timestamp
   async updateWorkspaceTimestamp(id: number): Promise<void> {
     const db = await this.ensureMainDbConnection();
 
@@ -171,7 +156,6 @@ class DatabaseManager {
     }
   }
 
-  // Remove workspace from main database
   async removeWorkspace(id: number): Promise<void> {
     const db = await this.ensureMainDbConnection();
 
@@ -184,7 +168,6 @@ class DatabaseManager {
     }
   }
 
-  // Get workspace name from path using Rust backend
   async getWorkspaceNameFromPath(path: string): Promise<string> {
     try {
       return await invoke("get_workspace_name_from_path", { path });
@@ -194,17 +177,13 @@ class DatabaseManager {
     }
   }
 
-  // Open an existing workspace
   async openWorkspace(workspacePath: string): Promise<Workspace> {
     try {
-      // Validate the path
       await invoke("validate_workspace_path", { path: workspacePath });
 
-      // Check if workspace exists in main database
       let workspace = await this.getWorkspaceByPath(workspacePath);
 
       if (!workspace) {
-        // If not in database, add it
         const name = await this.getWorkspaceNameFromPath(workspacePath);
         await this.addWorkspace({
           name,
@@ -216,11 +195,9 @@ class DatabaseManager {
           throw new Error("Failed to retrieve newly added workspace");
         }
       } else {
-        // Update timestamp for existing workspace
         await this.updateWorkspaceTimestamp(workspace.id!);
       }
 
-      // Initialize workspace database
       await this.initWorkspaceDatabase(workspacePath);
 
       console.log("Workspace opened successfully:", workspace);
@@ -231,7 +208,6 @@ class DatabaseManager {
     }
   }
 
-  // Close current workspace database connection
   async closeWorkspaceDatabase(): Promise<void> {
     if (this.workspaceDb) {
       await this.workspaceDb.close();
@@ -240,16 +216,13 @@ class DatabaseManager {
     }
   }
 
-  // Get current workspace database instance
   getWorkspaceDatabase(): Database | null {
     return this.workspaceDb;
   }
 
-  // Get main database instance
   getMainDatabase(): Database | null {
     return this.mainDb;
   }
 }
 
-// Export singleton instance
 export const databaseManager = new DatabaseManager();

@@ -15,10 +15,10 @@ function App() {
     <WorkspaceProvider>
       <HashRouter>
         <Routes>
-          {/* Main page without navbar */}
+          {/* Main page */}
           <Route path="/" element={<MainPage />} />
 
-          {/* All other pages with navbar through Layout */}
+          {/* All other pages */}
           <Route path="/" element={<Layout />}>
             <Route path="workspace" element={<WorkspacePage />} />
             <Route path="gallery" element={<GalleryPage />} />

@@ -34,7 +34,6 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize the database on component mount
   useEffect(() => {
     const initializeDatabase = async () => {
       try {
@@ -54,6 +53,7 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({
     try {
       console.log("Refreshing workspaces...");
       const allWorkspaces = await databaseManager.getAllWorkspaces();
+
       setWorkspaces(allWorkspaces);
       console.log(`Loaded ${allWorkspaces.length} workspaces`);
     } catch (error) {
@@ -62,9 +62,12 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({
       // If database connection issue, try to reinitialize
       if (error instanceof Error && error.message.includes("closed pool")) {
         console.log("Database connection lost, attempting to reinitialize...");
+
         try {
           await databaseManager.initMainDatabase();
+
           const allWorkspaces = await databaseManager.getAllWorkspaces();
+
           setWorkspaces(allWorkspaces);
           console.log("Database reinitialized successfully");
         } catch (reinitError) {
@@ -80,7 +83,9 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({
   const openWorkspace = async (path: string) => {
     try {
       const workspace = await databaseManager.openWorkspace(path);
+
       setCurrentWorkspace(workspace);
+
       await refreshWorkspaces(); // Refresh to update timestamps
       console.log("Workspace opened in context:", workspace);
     } catch (error) {
@@ -93,6 +98,7 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({
     try {
       await databaseManager.closeWorkspaceDatabase();
       setCurrentWorkspace(null);
+
       console.log("Workspace closed in context");
     } catch (error) {
       console.error("Failed to close workspace in context:", error);
@@ -121,10 +127,12 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({
         console.log(
           "Database connection lost during removal, attempting to recover..."
         );
+
         try {
           await databaseManager.initMainDatabase();
           await databaseManager.removeWorkspace(id);
           await refreshWorkspaces();
+
           console.log("Workspace removal recovered successfully");
         } catch (recoveryError) {
           console.error(
