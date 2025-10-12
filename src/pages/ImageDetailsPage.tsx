@@ -28,18 +28,28 @@ const ImageDetailsPage: React.FC = () => {
   const decodedPath = imagePath ? decodeURIComponent(imagePath) : "";
   const currentImage = images.find((img) => img.relative_path === decodedPath);
 
+  // If image was renamed and URL doesn't match, try to find by old reference
+  // This helps when navigating after a rename operation
+  const fallbackImage = !currentImage
+    ? images.find(
+        (img) => img.name === newName && img.relative_path !== decodedPath
+      )
+    : null;
+
+  const imageToDisplay = currentImage || fallbackImage;
+
   useEffect(() => {
-    if (currentImage) {
-      selectImage(currentImage);
+    if (imageToDisplay) {
+      selectImage(imageToDisplay);
     }
-  }, [currentImage, selectImage]);
+  }, [imageToDisplay, selectImage]);
 
   useEffect(() => {
     const loadImageSrc = async () => {
-      if (!currentImage) return;
+      if (!imageToDisplay) return;
 
       try {
-        const base64Src = await getImageAsBase64(currentImage.relative_path);
+        const base64Src = await getImageAsBase64(imageToDisplay.relative_path);
         setImageSrc(base64Src);
         setImageError(false);
       } catch (error) {
@@ -49,21 +59,31 @@ const ImageDetailsPage: React.FC = () => {
     };
 
     loadImageSrc();
-  }, [currentImage, getImageAsBase64]);
+  }, [imageToDisplay, getImageAsBase64]);
 
   useEffect(() => {
-    if (currentImage) {
-      setNewName(currentImage.name);
+    if (imageToDisplay) {
+      setNewName(imageToDisplay.name);
       loadImageTags();
     }
-  }, [currentImage]);
+  }, [imageToDisplay]);
+
+  // Update URL if the current image's path changes (after rename)
+  useEffect(() => {
+    if (imageToDisplay && imageToDisplay.relative_path !== decodedPath) {
+      navigate(
+        `/gallery/image/${encodeURIComponent(imageToDisplay.relative_path)}`,
+        { replace: true }
+      );
+    }
+  }, [imageToDisplay?.relative_path, decodedPath, navigate]);
 
   const loadImageTags = async () => {
-    if (!currentImage?.id) return;
+    if (!imageToDisplay?.id) return;
 
     setIsLoadingTags(true);
     try {
-      const tags = await getTagsForImage(currentImage.id);
+      const tags = await getTagsForImage(imageToDisplay.id);
       setImageTags(tags);
     } catch (error) {
       console.error("Failed to load image tags:", error);
@@ -73,7 +93,7 @@ const ImageDetailsPage: React.FC = () => {
   };
 
   const handleTagsChange = async (tags: Tag[]) => {
-    if (!currentImage?.id) return;
+    if (!imageToDisplay?.id) return;
 
     try {
       // Find tags to add and remove
@@ -87,12 +107,12 @@ const ImageDetailsPage: React.FC = () => {
 
       // Add new tags
       for (const tagId of tagsToAdd) {
-        await addTagToImage(currentImage.id, tagId);
+        await addTagToImage(imageToDisplay.id, tagId);
       }
 
       // Remove tags
       for (const tagId of tagsToRemove) {
-        await removeTagFromImage(currentImage.id, tagId);
+        await removeTagFromImage(imageToDisplay.id, tagId);
       }
 
       // Reload tags
@@ -103,10 +123,10 @@ const ImageDetailsPage: React.FC = () => {
   };
 
   const handleRemoveTag = async (tagToRemove: Tag) => {
-    if (!currentImage?.id || !tagToRemove.id) return;
+    if (!imageToDisplay?.id || !tagToRemove.id) return;
 
     try {
-      await removeTagFromImage(currentImage.id, tagToRemove.id);
+      await removeTagFromImage(imageToDisplay.id, tagToRemove.id);
       await loadImageTags();
     } catch (error) {
       console.error("Failed to remove tag:", error);
@@ -126,7 +146,7 @@ const ImageDetailsPage: React.FC = () => {
     );
   }
 
-  if (!currentImage) {
+  if (!imageToDisplay) {
     return (
       <div className="p-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
@@ -154,30 +174,31 @@ const ImageDetailsPage: React.FC = () => {
   };
 
   const handleRename = async () => {
-    if (!newName.trim() || newName === currentImage.name) {
+    if (!newName.trim() || newName === imageToDisplay.name) {
       setIsEditing(false);
-      setNewName(currentImage.name);
+      setNewName(imageToDisplay.name);
       return;
     }
 
     try {
       await renameImage(
-        currentImage.name,
+        imageToDisplay.name,
         newName.trim(),
-        currentImage.relative_path
+        imageToDisplay.relative_path
       );
       setIsEditing(false);
+      // The URL will be updated automatically by the useEffect when the image state changes
     } catch (error) {
       console.error("Failed to rename image:", error);
       alert("Failed to rename image. Please try again.");
-      setNewName(currentImage.name);
+      setNewName(imageToDisplay.name);
     }
   };
 
   const handleDelete = async () => {
     if (
       !confirm(
-        `Are you sure you want to delete "${currentImage.name}"? This action cannot be undone.`
+        `Are you sure you want to delete "${imageToDisplay.name}"? This action cannot be undone.`
       )
     ) {
       return;
@@ -185,7 +206,7 @@ const ImageDetailsPage: React.FC = () => {
 
     try {
       setIsDeleting(true);
-      await deleteImage(currentImage.relative_path);
+      await deleteImage(imageToDisplay.relative_path);
       navigate("/gallery");
     } catch (error) {
       console.error("Failed to delete image:", error);
@@ -199,7 +220,7 @@ const ImageDetailsPage: React.FC = () => {
       handleRename();
     } else if (e.key === "Escape") {
       setIsEditing(false);
-      setNewName(currentImage.name);
+      setNewName(imageToDisplay.name);
     }
   };
 
@@ -275,7 +296,7 @@ const ImageDetailsPage: React.FC = () => {
             ) : (
               <img
                 src={imageSrc}
-                alt={currentImage.name}
+                alt={imageToDisplay.name}
                 className="w-full h-auto max-h-96 object-contain"
                 onError={() => setImageError(true)}
               />
@@ -309,7 +330,7 @@ const ImageDetailsPage: React.FC = () => {
                 <button
                   onClick={() => {
                     setIsEditing(false);
-                    setNewName(currentImage.name);
+                    setNewName(imageToDisplay.name);
                   }}
                   className="px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
                 >
@@ -318,7 +339,7 @@ const ImageDetailsPage: React.FC = () => {
               </div>
             ) : (
               <p className="text-gray-900 dark:text-gray-100 font-mono bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-                {currentImage.name}
+                {imageToDisplay.name}
               </p>
             )}
           </div>
@@ -329,7 +350,7 @@ const ImageDetailsPage: React.FC = () => {
               Path
             </label>
             <p className="text-gray-900 dark:text-gray-100 font-mono bg-gray-50 dark:bg-gray-800 p-3 rounded-md break-all">
-              {currentImage.relative_path}
+              {imageToDisplay.relative_path}
             </p>
           </div>
 
@@ -340,7 +361,7 @@ const ImageDetailsPage: React.FC = () => {
                 File Size
               </label>
               <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-                {formatFileSize(currentImage.file_size)}
+                {formatFileSize(imageToDisplay.file_size)}
               </p>
             </div>
             <div>
@@ -348,13 +369,13 @@ const ImageDetailsPage: React.FC = () => {
                 Format
               </label>
               <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-3 rounded-md uppercase">
-                {currentImage.extension}
+                {imageToDisplay.extension}
               </p>
             </div>
           </div>
 
           {/* Dates */}
-          <ImageDetailsDates currentImage={currentImage} />
+          <ImageDetailsDates currentImage={imageToDisplay} />
 
           {/* Tags */}
           <ImageDetailsTags
@@ -365,7 +386,7 @@ const ImageDetailsPage: React.FC = () => {
           />
 
           {/* Connections */}
-          <ImageConnections currentImage={currentImage} />
+          <ImageConnections currentImage={imageToDisplay} />
         </div>
       </div>
     </div>
