@@ -8,6 +8,7 @@ import { Tag } from "../utils/database";
 import ImageDetailsTags from "../components/ImageDetailsTags";
 import ImageDetailsDates from "../components/ImageDetailsDates";
 import { ImageConnections } from "../components";
+import { notify } from "../utils/notifications";
 
 const ImageDetailsPage: React.FC = () => {
   const { imagePath } = useParams<{ imagePath: string }>();
@@ -189,12 +190,12 @@ const ImageDetailsPage: React.FC = () => {
         imageToDisplay.relative_path
       );
       setIsEditing(false);
-      
+
       // Clear connections cache for this image since the path may have changed
       if (imageToDisplay.id) {
         clearImageConnectionsCache(imageToDisplay.id);
       }
-      
+
       // The URL will be updated automatically by the useEffect when the image state changes
     } catch (error) {
       console.error("Failed to rename image:", error);
@@ -214,17 +215,18 @@ const ImageDetailsPage: React.FC = () => {
 
     try {
       setIsDeleting(true);
-      
+
       // Clear connections cache for this image before deletion
       if (imageToDisplay.id) {
         clearImageConnectionsCache(imageToDisplay.id);
       }
-      
+
       await deleteImage(imageToDisplay.relative_path);
+      notify.success("Image deleted successfully");
       navigate("/gallery");
     } catch (error) {
       console.error("Failed to delete image:", error);
-      alert("Failed to delete image. Please try again.");
+      notify.error("Failed to delete image. Please try again.");
       setIsDeleting(false);
     }
   };

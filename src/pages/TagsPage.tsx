@@ -4,6 +4,7 @@ import { useTag } from "../contexts/TagContext";
 import { useWorkspace } from "../contexts/WorkspaceContext";
 import { TagManager } from "../components";
 import TagCreateForm from "../components/TagCreateForm";
+import { notify } from "../utils/notifications";
 
 interface Props {}
 
@@ -53,10 +54,13 @@ const TagsPage: React.FC<Props> = () => {
 
       // Refresh tags list
       await loadTags();
+
+      notify.success(`Tag "${trimmedName}" created successfully`);
     } catch (err) {
-      setCreateError(
-        err instanceof Error ? err.message : "Failed to create tag"
-      );
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to create tag";
+      setCreateError(errorMessage);
+      notify.error(errorMessage);
     } finally {
       setIsCreating(false);
     }
