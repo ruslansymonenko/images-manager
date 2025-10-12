@@ -19,7 +19,14 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": null,
+      "capabilities": ["default"]
+    }
+  },
+  "plugins": {
+    "sql": {
+      "preload": ["sqlite:main.db"],
+      "allowedDatabases": ["sqlite:*"]
     }
   },
   "bundle": {
