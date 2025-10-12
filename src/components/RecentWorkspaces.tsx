@@ -23,37 +23,37 @@ const RecentWorkspaces: React.FC<Props> = ({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <h2 className="text-lg font-semibold text-primary mb-4">
         Recent Workspaces
       </h2>
       <div className="space-y-2">
         {workspaces.slice(0, 5).map((workspace) => (
           <div
             key={workspace.id}
-            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+            className="flex items-center justify-between p-3 bg-tertiary rounded-lg border-primary hover:bg-hover cursor-pointer transition-all duration-200"
             onClick={() => handleOpenRecentWorkspace(workspace.absolute_path)}
           >
             <div className="flex items-center space-x-3 flex-1 min-w-0">
-              <FolderClosed className="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+              <FolderClosed className="w-5 h-5 text-secondary flex-shrink-0" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                <p className="text-sm font-medium text-primary truncate">
                   {workspace.name}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                <p className="text-xs text-secondary truncate">
                   {workspace.absolute_path}
                 </p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               {workspace.updated_at && (
-                <div className="flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex items-center space-x-1 text-xs text-secondary">
                   <Clock className="w-3 h-3" />
                   <span>{formatDate(workspace.updated_at)}</span>
                 </div>
               )}
               <button
                 onClick={(e) => handleRemoveWorkspace(e, workspace.id!)}
-                className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                className="p-1 text-tertiary hover:text-red-500 transition-colors"
                 title="Remove from list"
               >
                 <Trash2 className="w-4 h-4" />

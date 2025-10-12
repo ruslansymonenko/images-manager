@@ -107,33 +107,35 @@ export const themeColors = {
   light: {
     // Backgrounds
     background: {
-      primary: colors.gray[50],
-      secondary: "#ffffff",
-      tertiary: colors.gray[100],
+      primary: "#ffffff",
+      secondary: "#f8fafc",
+      tertiary: "#f1f5f9",
       elevated: "#ffffff",
+      error: colors.error[400],
     },
 
     // Text colors
     text: {
       primary: colors.gray[900],
-      secondary: colors.gray[600],
-      tertiary: colors.gray[400],
+      secondary: colors.secondary[700],
+      tertiary: colors.secondary[500],
       inverse: "#ffffff",
+      error: colors.error[900],
     },
 
     // Border colors
     border: {
-      primary: colors.gray[200],
-      secondary: colors.gray[300],
+      primary: colors.secondary[200],
+      secondary: colors.secondary[300],
       focus: colors.primary[500],
     },
 
     // Interactive states
     interactive: {
-      primary: colors.primary[600],
-      primaryHover: colors.primary[700],
-      secondary: colors.gray[100],
-      secondaryHover: colors.gray[200],
+      primary: colors.primary[500],
+      primaryHover: colors.primary[600],
+      secondary: colors.secondary[100],
+      secondaryHover: colors.secondary[200],
       danger: colors.error[600],
       dangerHover: colors.error[700],
     },
@@ -146,6 +148,7 @@ export const themeColors = {
       secondary: colors.gray[900],
       tertiary: colors.gray[800],
       elevated: colors.gray[800],
+      error: colors.error[400],
     },
 
     // Text colors
@@ -154,6 +157,7 @@ export const themeColors = {
       secondary: colors.gray[400],
       tertiary: colors.gray[500],
       inverse: colors.gray[900],
+      error: colors.error[900],
     },
 
     // Border colors

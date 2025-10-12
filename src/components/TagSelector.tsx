@@ -175,7 +175,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
           {multiple && (
             <button
               onClick={clearSelection}
-              className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 ml-1"
+              className="text-xs text-secondary  ml-1"
               title="Clear all tags"
             >
               Clear all
@@ -189,7 +189,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
         <input
           ref={inputRef}
           type="text"
-          className="block w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="block w-full pl-10 pr-10 py-2 border rounded-md bg-white dark:bg-gray-800 text-secondary placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           placeholder={placeholder}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -206,7 +206,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
           )}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            className="p-2 text-gray-400 "
           >
             <ChevronDown
               className={`h-4 w-4 transition-transform ${
@@ -219,19 +219,19 @@ const TagSelector: React.FC<TagSelectorProps> = ({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-10 mt-1 w-full bg-elevated shadow-lg max-h-60 overflow-auto">
           {canCreateTag && (
             <button
               onClick={handleCreateTag}
               disabled={isCreating}
-              className="w-full px-3 py-2 text-left text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-600 disabled:opacity-50"
+              className="w-full px-3 py-2 text-left text-sm text-blue-600 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-600 disabled:opacity-50"
             >
               {isCreating ? "Creating..." : `Create "${searchQuery}"`}
             </button>
           )}
 
           {filteredResults.length === 0 && !canCreateTag ? (
-            <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="px-3 py-2 text-sm text-secondary">
               {searchQuery ? "No tags found" : "No available tags"}
             </div>
           ) : (
@@ -245,9 +245,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: tag.color || "#6b7280" }}
                 />
-                <span className="text-gray-900 dark:text-gray-100">
-                  {tag.name}
-                </span>
+                <span className="text-secondary">{tag.name}</span>
               </button>
             ))
           )}

@@ -16,7 +16,7 @@ const SelectWorkspaceForm: React.FC<Props> = (props) => {
       <div>
         <label
           htmlFor="workspace-path"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          className="block text-sm font-medium text-primary mb-2"
         >
           Workspace Path
         </label>
@@ -41,7 +41,7 @@ const SelectWorkspaceForm: React.FC<Props> = (props) => {
             Browse
           </Button>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-xs text-tertiary mt-1">
           A new workspace will be created if the folder doesn't contain one
         </p>
       </div>

@@ -4,6 +4,7 @@ import ForceGraph2D from "react-force-graph-2d";
 import { useConnections } from "../contexts/ConnectionContext";
 import { useWorkspace } from "../contexts/WorkspaceContext";
 import { useImages } from "../contexts/ImageContext";
+import ConnectionStatistics from "../components/ConnectionsStatistics";
 
 interface GraphNode {
   id: number;
@@ -123,10 +124,8 @@ const ConnectionsPage: React.FC = () => {
   if (!currentWorkspace) {
     return (
       <div className="p-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          Connections
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <h1 className="text-2xl font-bold text-primary mb-4">Connections</h1>
+        <p className="text-secondary">
           Please open a workspace to view image connections.
         </p>
       </div>
@@ -137,10 +136,10 @@ const ConnectionsPage: React.FC = () => {
     <div className="p-6 h-full flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          <h1 className="text-2xl font-bold text-primary mb-2">
             Image Connections Graph
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-secondary">
             Visualize relationships between images in your workspace
           </p>
         </div>
@@ -155,40 +154,13 @@ const ConnectionsPage: React.FC = () => {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <div className="mb-4 p-3 bg-error rounded-md">
+          <p className="text-sm text-primary">{error}</p>
         </div>
       )}
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            Total Images
-          </h3>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {graphData.nodes.length}
-          </p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            Connected Images
-          </h3>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {stats.connectedImages}
-          </p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            Total Connections
-          </h3>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {stats.totalConnections}
-          </p>
-        </div>
-      </div>
+      <ConnectionStatistics graphData={graphData} stats={stats} />
 
       {isLoadingData ? (
         <div className="flex-1 flex items-center justify-center">
@@ -215,10 +187,10 @@ const ConnectionsPage: React.FC = () => {
                 d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
               />
             </svg>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            <h3 className="text-lg font-medium text-primary mb-2">
               No Images Found
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-secondary mb-4">
               There are no images in this workspace to display.
             </p>
             <button
@@ -233,52 +205,48 @@ const ConnectionsPage: React.FC = () => {
         <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 relative overflow-hidden">
           {/* Legend */}
           <div className="absolute top-4 left-4 z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-sm">
-            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-              Legend
-            </h4>
+            <h4 className="text-sm font-medium text-primary mb-2">Legend</h4>
             <div className="space-y-1 text-xs">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                <span className="text-gray-600 dark:text-gray-400">
-                  JPG/JPEG
-                </span>
+                <span className="text-secondary">JPG/JPEG</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-teal-400 rounded-full"></div>
-                <span className="text-gray-600 dark:text-gray-400">PNG</span>
+                <span className="text-secondary">PNG</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                <span className="text-gray-600 dark:text-gray-400">GIF</span>
+                <span className="text-secondary">GIF</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span className="text-gray-600 dark:text-gray-400">WebP</span>
+                <span className="text-secondary">WebP</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                <span className="text-gray-600 dark:text-gray-400">SVG</span>
+                <span className="text-secondary">SVG</span>
               </div>
             </div>
           </div>
 
           {/* Selected Node Info */}
           {selectedNode && (
-            <div className="absolute top-4 right-4 z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-sm max-w-xs">
-              <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+            <div className="absolute top-4 right-4 z-10 bg-tertiary rounded-lg p-3 shadow-sm max-w-xs">
+              <h4 className="text-sm font-medium text-primary mb-2">
                 Selected Image
               </h4>
               <div className="space-y-1 text-xs">
                 <p
-                  className="text-gray-900 dark:text-gray-100 font-medium truncate"
+                  className="text-primary font-medium truncate"
                   title={selectedNode.name}
                 >
                   {selectedNode.name}
                 </p>
-                <p className="text-gray-600 dark:text-gray-400 uppercase">
+                <p className="text-secondary uppercase">
                   {selectedNode.extension}
                 </p>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-secondary">
                   {(selectedNode.size / 1024).toFixed(1)} KB
                 </p>
                 <button

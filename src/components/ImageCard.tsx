@@ -50,12 +50,12 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onImageClick }) => {
 
   return (
     <div
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer overflow-hidden"
+      className="card cursor-pointer overflow-hidden transition-all duration-200 hover:shadow-lg"
       onClick={handleClick}
     >
-      <div className="aspect-square relative bg-gray-100 dark:bg-gray-700">
+      <div className="aspect-square relative bg-tertiary">
         {imageError ? (
-          <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+          <div className="w-full h-full flex items-center justify-center text-tertiary">
             <svg
               className="w-12 h-12"
               fill="none"
@@ -81,11 +81,9 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onImageClick }) => {
       </div>
 
       <div className="p-4">
-        <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate mb-2">
-          {image.name}
-        </h3>
+        <h3 className="font-medium text-primary truncate mb-2">{image.name}</h3>
 
-        <div className="space-y-1 text-sm text-gray-500 dark:text-gray-400">
+        <div className="space-y-1 text-sm text-secondary">
           <p className="truncate" title={image.relative_path}>
             {image.relative_path}
           </p>

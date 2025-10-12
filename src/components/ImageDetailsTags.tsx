@@ -19,12 +19,12 @@ const ImageDetailsTags: React.FC<Props> = ({
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-secondary mb-2">
           Tags
         </label>
 
         {isLoadingTags ? (
-          <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+          <div className="text-sm text-secondary bg-tertiary p-3 rounded-md">
             Loading tags...
           </div>
         ) : (
@@ -47,7 +47,7 @@ const ImageDetailsTags: React.FC<Props> = ({
             )}
 
             {/* Tag Selector */}
-            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+            <div className="bg-tertiary p-3 rounded-md">
               <TagSelector
                 selectedTags={imageTags}
                 onTagsChange={handleTagsChange}

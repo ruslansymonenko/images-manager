@@ -90,24 +90,27 @@ const MainPage: React.FC<Props> = () => {
   };
 
   return (
-    <div className="min-h-screen min-w-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 w-full max-w-4xl">
+    <div className="min-h-screen min-w-screen bg-primary flex items-center justify-center p-4">
+      <div className="card w-full max-w-4xl">
         <div className="p-8">
           <div className="text-center mb-8">
-            <div className="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4">
-              <FolderClosed className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            <div className="mx-auto w-16 h-16 bg-tertiary rounded-full flex items-center justify-center mb-4">
+              <FolderClosed
+                className="w-8 h-8"
+                style={{ color: "var(--color-interactive-primary)" }}
+              />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            <h1 className="text-2xl font-bold text-primary mb-2">
               Images Manager
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-secondary">
               Select or create a workspace to organize your images
             </p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-red-700 dark:text-red-400">{error}</p>
+            <div className="mb-6 p-4 status-error border rounded-lg">
+              <p>{error}</p>
             </div>
           )}
           <SelectWorkspaceForm
@@ -127,7 +130,7 @@ const MainPage: React.FC<Props> = () => {
 
           {isInitialized && workspaces.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-gray-500 dark:text-gray-400">
+              <p className="text-secondary">
                 No recent workspaces found. Create your first workspace by
                 selecting a folder above.
               </p>

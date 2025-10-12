@@ -76,10 +76,8 @@ const TagsPage: React.FC<Props> = () => {
   if (!currentWorkspace) {
     return (
       <div className="p-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          Tags
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <h1 className="text-2xl font-bold text-primary mb-4">Tags</h1>
+        <p className="text-secondary">
           Please open a workspace to manage tags.
         </p>
       </div>
@@ -89,9 +87,7 @@ const TagsPage: React.FC<Props> = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          Tags Management
-        </h1>
+        <h1 className="text-2xl font-bold text-primary">Tags Management</h1>
         <button
           onClick={() => setShowCreateForm(true)}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -109,7 +105,7 @@ const TagsPage: React.FC<Props> = () => {
             placeholder="Search tags..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="block w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="block w-full pl-10 pr-4 py-2 rounded-md bg-tertiary text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
@@ -129,7 +125,7 @@ const TagsPage: React.FC<Props> = () => {
       )}
 
       {/* Tags Stats */}
-      <div className="mb-6 text-sm text-gray-600 dark:text-gray-400">
+      <div className="mb-6 text-sm text-secondary">
         {searchTerm
           ? `Showing ${filteredTags.length} of ${tagsWithImageCount.length} tags`
           : `${tagsWithImageCount.length} tags total`}
@@ -138,22 +134,20 @@ const TagsPage: React.FC<Props> = () => {
       {/* Loading State */}
       {isLoading && (
         <div className="flex justify-center items-center py-12">
-          <div className="text-gray-600 dark:text-gray-400">
-            Loading tags...
-          </div>
+          <div className="text-secondary">Loading tags...</div>
         </div>
       )}
 
       {/* Empty State */}
       {!isLoading && tagsWithImageCount.length === 0 && (
         <div className="text-center py-12">
-          <div className="text-gray-400 dark:text-gray-500 mb-4">
+          <div className="text-secondary mb-4">
             <TagIcon className="w-16 h-16 mx-auto mb-4" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+          <h3 className="text-lg font-medium text-secondary mb-2">
             No tags yet
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-secondary mb-4">
             Create your first tag to start organizing your images.
           </p>
           <button
@@ -171,13 +165,13 @@ const TagsPage: React.FC<Props> = () => {
         filteredTags.length === 0 &&
         searchTerm && (
           <div className="text-center py-12">
-            <div className="text-gray-400 dark:text-gray-500 mb-4">
+            <div className="text-secondary mb-4">
               <Search className="w-16 h-16 mx-auto mb-4" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            <h3 className="text-lg font-medium text-primary mb-2">
               No tags found
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-secondary">
               No tags match your search "{searchTerm}".
             </p>
           </div>

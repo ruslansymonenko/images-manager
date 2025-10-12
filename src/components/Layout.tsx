@@ -6,7 +6,7 @@ interface Props {}
 
 const Layout: React.FC<Props> = () => {
   return (
-    <div className="min-h-screen min-w-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen min-w-screen bg-primary">
       <Navbar />
       <main className="w-full h-full">
         <Outlet />

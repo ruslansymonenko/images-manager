@@ -23,14 +23,15 @@ const Navbar: React.FC<Props> = () => {
   ];
 
   return (
-    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+    <nav className="bg-elevated border-b border-primary text-primary">
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Home className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              Images Manager
-            </h1>
+            <Home
+              className="w-6 h-6"
+              style={{ color: "var(--color-interactive-primary)" }}
+            />
+            <h1 className="text-xl font-bold text-primary">Images Manager</h1>
           </div>
 
           <div className="flex space-x-1">
@@ -41,8 +42,8 @@ const Navbar: React.FC<Props> = () => {
                 className={({ isActive }) =>
                   `flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      ? "bg-primary"
+                      : "text-primary hover:text-primary hover:bg-hover"
                   }`
                 }
               >
