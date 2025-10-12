@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useImages } from "../contexts/ImageContext";
 import { useWorkspace } from "../contexts/WorkspaceContext";
+import { useTag } from "../contexts/TagContext";
+import { TagChip, TagSelector } from "../components";
+import { Tag } from "../utils/database";
 
 const ImageDetailsPage: React.FC = () => {
   const { imagePath } = useParams<{ imagePath: string }>();
@@ -15,12 +18,16 @@ const ImageDetailsPage: React.FC = () => {
     renameImage,
     deleteImage,
   } = useImages();
+  const { getTagsForImage, addTagToImage, removeTagFromImage, createTag } =
+    useTag();
 
   const [imageSrc, setImageSrc] = useState<string>("");
   const [imageError, setImageError] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [imageTags, setImageTags] = useState<Tag[]>([]);
+  const [isLoadingTags, setIsLoadingTags] = useState(false);
 
   // Find the current image based on the URL parameter
   const decodedPath = imagePath ? decodeURIComponent(imagePath) : "";
@@ -53,8 +60,64 @@ const ImageDetailsPage: React.FC = () => {
   useEffect(() => {
     if (currentImage) {
       setNewName(currentImage.name);
+      loadImageTags();
     }
   }, [currentImage]);
+
+  const loadImageTags = async () => {
+    if (!currentImage?.id) return;
+
+    setIsLoadingTags(true);
+    try {
+      const tags = await getTagsForImage(currentImage.id);
+      setImageTags(tags);
+    } catch (error) {
+      console.error("Failed to load image tags:", error);
+    } finally {
+      setIsLoadingTags(false);
+    }
+  };
+
+  const handleTagsChange = async (tags: Tag[]) => {
+    if (!currentImage?.id) return;
+
+    try {
+      // Find tags to add and remove
+      const currentTagIds = imageTags.map((tag) => tag.id!);
+      const newTagIds = tags.map((tag) => tag.id!);
+
+      const tagsToAdd = newTagIds.filter((id) => !currentTagIds.includes(id));
+      const tagsToRemove = currentTagIds.filter(
+        (id) => !newTagIds.includes(id)
+      );
+
+      // Add new tags
+      for (const tagId of tagsToAdd) {
+        await addTagToImage(currentImage.id, tagId);
+      }
+
+      // Remove tags
+      for (const tagId of tagsToRemove) {
+        await removeTagFromImage(currentImage.id, tagId);
+      }
+
+      // Reload tags
+      await loadImageTags();
+    } catch (error) {
+      console.error("Failed to update image tags:", error);
+    }
+  };
+
+  const handleRemoveTag = async (tagToRemove: Tag) => {
+    if (!currentImage?.id || !tagToRemove.id) return;
+
+    try {
+      await removeTagFromImage(currentImage.id, tagToRemove.id);
+      await loadImageTags();
+    } catch (error) {
+      console.error("Failed to remove tag:", error);
+    }
+  };
 
   if (!currentWorkspace) {
     return (
@@ -324,6 +387,50 @@ const ImageDetailsPage: React.FC = () => {
                   currentImage.created_at || currentImage.updated_at || ""
                 )}
               </p>
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Tags
+              </label>
+
+              {isLoadingTags ? (
+                <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+                  Loading tags...
+                </div>
+              ) : (
+                <>
+                  {/* Current Tags */}
+                  {imageTags.length > 0 && (
+                    <div className="mb-3">
+                      <div className="flex flex-wrap gap-1">
+                        {imageTags.map((tag) => (
+                          <TagChip
+                            key={tag.id}
+                            tag={tag}
+                            removable
+                            onRemove={() => handleRemoveTag(tag)}
+                            size="sm"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tag Selector */}
+                  <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+                    <TagSelector
+                      selectedTags={imageTags}
+                      onTagsChange={handleTagsChange}
+                      placeholder="Add tags to this image..."
+                      allowCreate={true}
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
