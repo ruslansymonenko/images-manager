@@ -23,11 +23,29 @@ A Tauri-based desktop application for managing images within workspaces with SQL
 - **Image Details**: Dedicated page for viewing individual image information
 - **Search & Filter**: Search by name/path and filter by file format
 
+### Tag Management
+
+- **Create Custom Tags**: Add descriptive tags with customizable colors
+- **Tag Images**: Assign multiple tags to images for better organization
+- **Tag-based Filtering**: Filter gallery by one or multiple tags (AND/OR logic)
+- **Tag Statistics**: View tag usage counts across workspace
+
+### Connection System (Obsidian-style Graph)
+
+- **Image Connections**: Create bidirectional links between related images
+- **Graph Visualization**: Interactive force-directed graph showing image relationships
+- **Visual Representation**: Nodes represent images (color-coded by format), edges represent connections
+- **Interactive Navigation**: Click nodes to see details, double-click to open image
+- **Connection Management**: Add/remove connections directly from image details page
+- **Connection Statistics**: Track total connections and connected images
+
 ### User Interface
 
 - **Gallery Page**: Browse all images in a responsive grid layout
-- **Image Details Page**: View individual image with metadata and operations
-- **Search & Filtering**: Find images quickly with text search and format filters
+- **Image Details Page**: View individual image with metadata, tags, and connections
+- **Tags Page**: Manage workspace tags with creation, editing, and statistics
+- **Connections Page**: Interactive graph view of all image relationships
+- **Search & Filtering**: Find images quickly with text search, format filters, and tag filters
 - **Dark/Light Theme**: Automatic theme support
 
 ## Technology Stack
@@ -37,6 +55,7 @@ A Tauri-based desktop application for managing images within workspaces with SQL
 - **Database**: SQLite (via tauri-plugin-sql)
 - **Routing**: React Router DOM
 - **Icons**: Lucide React
+- **Graph Visualization**: react-force-graph-2d
 
 ## Database Schema
 
@@ -73,6 +92,35 @@ CREATE TABLE images (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   modified_at DATETIME NOT NULL
 );
+
+CREATE TABLE tags (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE,
+  color TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE image_tags (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  image_id INTEGER NOT NULL,
+  tag_id INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (image_id) REFERENCES images (id) ON DELETE CASCADE,
+  FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE,
+  UNIQUE (image_id, tag_id)
+);
+
+CREATE TABLE connections (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  image_a_id INTEGER NOT NULL,
+  image_b_id INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (image_a_id) REFERENCES images (id) ON DELETE CASCADE,
+  FOREIGN KEY (image_b_id) REFERENCES images (id) ON DELETE CASCADE,
+  UNIQUE (image_a_id, image_b_id),
+  CHECK (image_a_id != image_b_id)
+);
 ```
 
 ## Development
@@ -102,16 +150,27 @@ npm run tauri build
 src/
 ├── components/           # Reusable UI components
 │   ├── ImageCard.tsx    # Image thumbnail component
+│   ├── ImageConnections.tsx # Connection management component
+│   ├── TagChip.tsx      # Tag display component
 │   └── ...
 ├── contexts/            # React contexts
 │   ├── WorkspaceContext.tsx
-│   └── ImageContext.tsx # Image state management
+│   ├── ImageContext.tsx # Image state management
+│   ├── TagContext.tsx   # Tag state management
+│   └── ConnectionContext.tsx # Connection state management
 ├── pages/               # Application pages
 │   ├── GalleryPage.tsx  # Main gallery view
 │   ├── ImageDetailsPage.tsx # Individual image details
+│   ├── TagsPage.tsx     # Tag management page
+│   ├── ConnectionsPage.tsx # Graph visualization page
 │   └── ...
 ├── utils/
-│   └── database.ts      # Database operations
+│   └── database/        # Database operations
+│       ├── manager.ts   # Main database manager
+│       ├── image.ts     # Image-related operations
+│       ├── tag.ts       # Tag-related operations
+│       ├── connection.ts # Connection-related operations
+│       └── types.ts     # TypeScript types
 └── main.tsx            # Application entry point
 
 src-tauri/
@@ -126,8 +185,46 @@ src-tauri/
 2. **Auto-Scan**: Application automatically scans for images recursively
 3. **Database Storage**: Image metadata stored in workspace's SQLite database
 4. **Gallery View**: Browse images in responsive grid layout
-5. **Image Operations**: Click images to view details, rename, or delete
-6. **Real-time Updates**: All operations update both filesystem and database
+5. **Tag Images**: Add descriptive tags to organize images by content or category
+6. **Create Connections**: Link related images together (e.g., before/after shots, image series)
+7. **Graph Exploration**: Use the connections page to visualize relationships between images
+8. **Image Operations**: Click images to view details, rename, delete, or manage tags/connections
+9. **Real-time Updates**: All operations update both filesystem and database
+
+## Connection System Features
+
+### Creating Connections
+
+- Open any image's detail page
+- Scroll to the "Connected Images" section
+- Click "Add Connection" to link with another image
+- Select target image from the list (already connected images are marked)
+- Connections are bidirectional (appear on both images)
+
+### Graph Visualization
+
+- Navigate to the "Connections" page to see the full graph
+- **Nodes**: Represent images, color-coded by file type
+  - Red: JPG/JPEG files
+  - Teal: PNG files
+  - Blue: GIF files
+  - Green: WebP files
+  - Yellow: SVG files
+  - Purple: BMP files
+- **Edges**: Represent connections between images
+- **Interactions**:
+  - Click and drag to pan around
+  - Mouse wheel to zoom in/out
+  - Click nodes to see image details
+  - Double-click nodes to open image detail page
+  - Drag nodes to reposition them
+
+### Connection Management
+
+- View all connections for an image on its detail page
+- Remove connections with the "X" button
+- Connection removal is bidirectional (removes from both images)
+- Connections are automatically cleaned up when images are deleted
 
 ## File Operations
 
@@ -160,12 +257,15 @@ src-tauri/
 
 The modular architecture supports easy extension for:
 
-- Tag management system
-- Image collections/albums
-- Advanced metadata extraction
+- Advanced graph analytics (centrality measures, clustering)
+- Image collections/albums with nested structures
+- Advanced metadata extraction (EXIF data, image dimensions)
 - Image editing capabilities
-- Export/import functionality
+- Export/import functionality for connections and tags
 - Workspace synchronization
+- Tag hierarchies and categories
+- Bulk connection operations
+- Connection types (e.g., "similar", "sequence", "reference")
 
 ## Contributing
 

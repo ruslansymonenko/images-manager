@@ -56,3 +56,16 @@ export interface ImageWithTags extends ImageFile {
 export interface TagWithImageCount extends Tag {
   image_count: number;
 }
+
+export interface Connection {
+  id?: number;
+  image_a_id: number;
+  image_b_id: number;
+  created_at?: string;
+}
+
+export interface ImageConnection {
+  connection_id: number;
+  connected_image: ImageFile;
+  created_at: string;
+}

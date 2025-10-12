@@ -2,12 +2,15 @@ import Database from "@tauri-apps/plugin-sql";
 import { WorkspaceManager } from "./workspace";
 import { ImageManager } from "./image";
 import { TagManager } from "./tag";
+import { ConnectionManager } from "./connection";
 import {
   Workspace,
   ImageFile,
   Tag,
   ImageWithTags,
   TagWithImageCount,
+  Connection,
+  ImageConnection,
 } from "./types";
 
 /**
@@ -18,11 +21,13 @@ class DatabaseManager {
   private workspaceManager: WorkspaceManager;
   private imageManager: ImageManager;
   private tagManager: TagManager;
+  private connectionManager: ConnectionManager;
 
   constructor() {
     this.workspaceManager = new WorkspaceManager();
     this.imageManager = new ImageManager();
     this.tagManager = new TagManager();
+    this.connectionManager = new ConnectionManager();
   }
 
   async initMainDatabase(): Promise<void> {
@@ -56,10 +61,12 @@ class DatabaseManager {
   async openWorkspace(workspacePath: string): Promise<Workspace> {
     const workspace = await this.workspaceManager.openWorkspace(workspacePath);
 
-    // Sync the workspace database connection to the image and tag managers
+    // Sync the workspace database connection to all managers
     this.imageManager["workspaceDb"] =
       this.workspaceManager.getWorkspaceDatabase();
     this.tagManager["workspaceDb"] =
+      this.workspaceManager.getWorkspaceDatabase();
+    this.connectionManager["workspaceDb"] =
       this.workspaceManager.getWorkspaceDatabase();
 
     return workspace;
@@ -70,10 +77,12 @@ class DatabaseManager {
       workspacePath
     );
 
-    // Sync the workspace database connection to the image and tag managers
+    // Sync the workspace database connection to all managers
     this.imageManager["workspaceDb"] =
       this.workspaceManager.getWorkspaceDatabase();
     this.tagManager["workspaceDb"] =
+      this.workspaceManager.getWorkspaceDatabase();
+    this.connectionManager["workspaceDb"] =
       this.workspaceManager.getWorkspaceDatabase();
 
     return dbPath;
@@ -83,6 +92,7 @@ class DatabaseManager {
     await this.workspaceManager.closeWorkspaceDatabase();
     this.imageManager["workspaceDb"] = null;
     this.tagManager["workspaceDb"] = null;
+    this.connectionManager["workspaceDb"] = null;
   }
 
   // Image-related methods
@@ -219,6 +229,38 @@ class DatabaseManager {
     return this.tagManager.tagNameExists(name, excludeId);
   }
 
+  // Connection-related methods
+  async createConnection(imageAId: number, imageBId: number): Promise<number> {
+    return this.connectionManager.createConnection(imageAId, imageBId);
+  }
+
+  async removeConnection(imageAId: number, imageBId: number): Promise<void> {
+    return this.connectionManager.removeConnection(imageAId, imageBId);
+  }
+
+  async getConnectionsForImage(imageId: number): Promise<ImageConnection[]> {
+    return this.connectionManager.getConnectionsForImage(imageId);
+  }
+
+  async getAllConnections(): Promise<Connection[]> {
+    return this.connectionManager.getAllConnections();
+  }
+
+  async connectionExists(imageAId: number, imageBId: number): Promise<boolean> {
+    return this.connectionManager.connectionExists(imageAId, imageBId);
+  }
+
+  async getConnectionStats(): Promise<{
+    totalConnections: number;
+    connectedImages: number;
+  }> {
+    return this.connectionManager.getConnectionStats();
+  }
+
+  async getGraphData(): Promise<{ nodes: any[]; links: any[] }> {
+    return this.connectionManager.getGraphData();
+  }
+
   // Database accessor methods
   getWorkspaceDatabase(): Database | null {
     return this.workspaceManager.getWorkspaceDatabase();
@@ -239,6 +281,10 @@ class DatabaseManager {
 
   getTagManager(): TagManager {
     return this.tagManager;
+  }
+
+  getConnectionManager(): ConnectionManager {
+    return this.connectionManager;
   }
 }
 

@@ -60,6 +60,20 @@ export class WorkspaceManager extends BaseDatabaseManager {
         )
       `);
 
+      // Create connections table
+      await this.workspaceDb.execute(`
+        CREATE TABLE IF NOT EXISTS connections (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          image_a_id INTEGER NOT NULL,
+          image_b_id INTEGER NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (image_a_id) REFERENCES images (id) ON DELETE CASCADE,
+          FOREIGN KEY (image_b_id) REFERENCES images (id) ON DELETE CASCADE,
+          UNIQUE (image_a_id, image_b_id),
+          CHECK (image_a_id != image_b_id)
+        )
+      `);
+
       await this.workspaceDb.execute(
         `INSERT OR REPLACE INTO workspace_info (key, value, updated_at) 
          VALUES (?, ?, CURRENT_TIMESTAMP)`,

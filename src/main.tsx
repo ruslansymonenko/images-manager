@@ -5,6 +5,7 @@ import { Layout } from "./components";
 import { WorkspaceProvider } from "./contexts/WorkspaceContext";
 import { ImageProvider } from "./contexts/ImageContext";
 import { TagProvider } from "./contexts/TagContext";
+import { ConnectionProvider } from "./contexts/ConnectionContext";
 import MainPage from "./pages/MainPage";
 import WorkspacePage from "./pages/WorkspacePage";
 import GalleryPage from "./pages/GalleryPage";
@@ -18,25 +19,27 @@ function App() {
     <WorkspaceProvider>
       <ImageProvider>
         <TagProvider>
-          <HashRouter>
-            <Routes>
-              {/* Main page */}
-              <Route path="/" element={<MainPage />} />
+          <ConnectionProvider>
+            <HashRouter>
+              <Routes>
+                {/* Main page */}
+                <Route path="/" element={<MainPage />} />
 
-              {/* All other pages */}
-              <Route path="/" element={<Layout />}>
-                <Route path="workspace" element={<WorkspacePage />} />
-                <Route path="gallery" element={<GalleryPage />} />
-                <Route
-                  path="gallery/image/:imagePath"
-                  element={<ImageDetailsPage />}
-                />
-                <Route path="tags" element={<TagsPage />} />
-                <Route path="connections" element={<ConnectionsPage />} />
-                <Route path="settings" element={<SettingsPage />} />
-              </Route>
-            </Routes>
-          </HashRouter>
+                {/* All other pages */}
+                <Route path="/" element={<Layout />}>
+                  <Route path="workspace" element={<WorkspacePage />} />
+                  <Route path="gallery" element={<GalleryPage />} />
+                  <Route
+                    path="gallery/image/:imagePath"
+                    element={<ImageDetailsPage />}
+                  />
+                  <Route path="tags" element={<TagsPage />} />
+                  <Route path="connections" element={<ConnectionsPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
+                </Route>
+              </Routes>
+            </HashRouter>
+          </ConnectionProvider>
         </TagProvider>
       </ImageProvider>
     </WorkspaceProvider>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Plus, Search, Tag, Tag as TagIcon } from "lucide-react";
+import { Plus, Search, Tag as TagIcon } from "lucide-react";
 import { useTag } from "../contexts/TagContext";
 import { useWorkspace } from "../contexts/WorkspaceContext";
 import { TagManager } from "../components";

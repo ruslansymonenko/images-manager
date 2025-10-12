@@ -20,7 +20,7 @@ const GalleryPage: React.FC<Props> = () => {
   const [filteredImages, setFilteredImages] = useState<ImageWithTags[]>([]);
   const [isLoadingFiltered, setIsLoadingFiltered] = useState(false);
 
-  // Load filtered images when tag selection or filter mode changes
+  // Load filtered images when tag selection, filter mode, or images change
   useEffect(() => {
     const loadFilteredImages = async () => {
       setIsLoadingFiltered(true);
@@ -38,7 +38,7 @@ const GalleryPage: React.FC<Props> = () => {
     if (currentWorkspace) {
       loadFilteredImages();
     }
-  }, [selectedTagIds, filterMode, getFilteredImages, currentWorkspace]);
+  }, [selectedTagIds, filterMode, getFilteredImages, currentWorkspace, images]);
 
   // Apply additional filters (search and extension) to the tag-filtered images
   const finalFilteredImages = filteredImages.filter((image) => {
