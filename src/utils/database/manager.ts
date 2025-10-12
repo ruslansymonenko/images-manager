@@ -16,12 +16,10 @@ class DatabaseManager {
     this.imageManager = new ImageManager();
   }
 
-  // Main database initialization
   async initMainDatabase(): Promise<void> {
     return this.workspaceManager.initMainDatabase();
   }
 
-  // Workspace-related methods
   async addWorkspace(workspace: Omit<Workspace, "id">): Promise<number> {
     return this.workspaceManager.addWorkspace(workspace);
   }

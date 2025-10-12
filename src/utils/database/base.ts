@@ -7,9 +7,6 @@ export class BaseDatabaseManager {
   protected mainDb: Database | null = null;
   protected workspaceDb: Database | null = null;
 
-  /**
-   * Ensures the main database connection is active and healthy
-   */
   protected async ensureMainDbConnection(): Promise<Database> {
     if (!this.mainDb) {
       console.log("Main database not initialized, initializing now...");
@@ -31,9 +28,6 @@ export class BaseDatabaseManager {
     return this.mainDb;
   }
 
-  /**
-   * Initializes the main database and creates necessary tables
-   */
   async initMainDatabase(): Promise<void> {
     try {
       console.log("Loading main database...");
@@ -59,9 +53,6 @@ export class BaseDatabaseManager {
     }
   }
 
-  /**
-   * Closes the workspace database connection
-   */
   async closeWorkspaceDatabase(): Promise<void> {
     if (this.workspaceDb) {
       await this.workspaceDb.close();
@@ -70,16 +61,10 @@ export class BaseDatabaseManager {
     }
   }
 
-  /**
-   * Returns the current workspace database instance
-   */
   getWorkspaceDatabase(): Database | null {
     return this.workspaceDb;
   }
 
-  /**
-   * Returns the current main database instance
-   */
   getMainDatabase(): Database | null {
     return this.mainDb;
   }

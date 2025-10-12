@@ -7,9 +7,6 @@ import { Workspace } from "./types";
  * Workspace domain manager - handles all workspace-related database operations
  */
 export class WorkspaceManager extends BaseDatabaseManager {
-  /**
-   * Initializes a workspace database and sets up required tables
-   */
   async initWorkspaceDatabase(workspacePath: string): Promise<string> {
     try {
       const dbPath: string = await invoke("ensure_workspace_structure", {
@@ -55,9 +52,6 @@ export class WorkspaceManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Adds a new workspace to the main database
-   */
   async addWorkspace(workspace: Omit<Workspace, "id">): Promise<number> {
     const db = await this.ensureMainDbConnection();
 
@@ -80,9 +74,6 @@ export class WorkspaceManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Retrieves all workspaces from the main database
-   */
   async getAllWorkspaces(): Promise<Workspace[]> {
     const db = await this.ensureMainDbConnection();
 
@@ -97,9 +88,6 @@ export class WorkspaceManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Retrieves a workspace by its absolute path
-   */
   async getWorkspaceByPath(path: string): Promise<Workspace | null> {
     const db = await this.ensureMainDbConnection();
 
@@ -115,9 +103,6 @@ export class WorkspaceManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Updates the timestamp of a workspace to mark it as recently used
-   */
   async updateWorkspaceTimestamp(id: number): Promise<void> {
     const db = await this.ensureMainDbConnection();
 
@@ -132,9 +117,6 @@ export class WorkspaceManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Removes a workspace from the main database
-   */
   async removeWorkspace(id: number): Promise<void> {
     const db = await this.ensureMainDbConnection();
 
@@ -147,9 +129,6 @@ export class WorkspaceManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Gets the workspace name from a given path using Tauri backend
-   */
   async getWorkspaceNameFromPath(path: string): Promise<string> {
     try {
       return await invoke("get_workspace_name_from_path", { path });
@@ -159,9 +138,6 @@ export class WorkspaceManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Opens a workspace - validates, adds if new, updates timestamp, and initializes workspace DB
-   */
   async openWorkspace(workspacePath: string): Promise<Workspace> {
     try {
       await invoke("validate_workspace_path", { path: workspacePath });

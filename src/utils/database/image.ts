@@ -6,21 +6,16 @@ import { ImageFile } from "./types";
  * Image domain manager - handles all image-related database operations
  */
 export class ImageManager extends BaseDatabaseManager {
-  /**
-   * Scans workspace for images and stores them in the database
-   */
   async scanAndStoreImages(workspacePath: string): Promise<ImageFile[]> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
     }
 
     try {
-      // Scan images using Tauri command
       const scannedImages: ImageFile[] = await invoke("scan_images", {
         workspacePath: workspacePath,
       });
 
-      // Clear existing images and insert new ones
       await this.workspaceDb.execute("DELETE FROM images");
 
       for (const image of scannedImages) {
@@ -45,9 +40,6 @@ export class ImageManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Retrieves all images from the workspace database
-   */
   async getAllImages(): Promise<ImageFile[]> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -64,9 +56,6 @@ export class ImageManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Retrieves a specific image by its relative path
-   */
   async getImageByPath(relativePath: string): Promise<ImageFile | null> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -83,10 +72,6 @@ export class ImageManager extends BaseDatabaseManager {
       throw error;
     }
   }
-
-  /**
-   * Updates the path of an image in the database
-   */
   async updateImagePath(oldPath: string, newPath: string): Promise<void> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -106,9 +91,6 @@ export class ImageManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Updates the name and path of an image in the database
-   */
   async updateImageName(
     relativePath: string,
     newName: string,
@@ -133,9 +115,6 @@ export class ImageManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Removes an image record from the database
-   */
   async deleteImageFromDb(relativePath: string): Promise<void> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -152,9 +131,6 @@ export class ImageManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Moves an image file and updates the database record
-   */
   async moveImage(
     oldPath: string,
     newPath: string,
@@ -162,9 +138,11 @@ export class ImageManager extends BaseDatabaseManager {
   ): Promise<string> {
     try {
       const newRelativePath: string = await invoke("move_image", {
-        oldPath: oldPath,
-        newPath: newPath,
-        workspacePath: workspacePath,
+        request: {
+          old_path: oldPath,
+          new_path: newPath,
+          workspace_path: workspacePath,
+        },
       });
 
       await this.updateImagePath(oldPath, newRelativePath);
@@ -175,9 +153,6 @@ export class ImageManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Renames an image file and updates the database record
-   */
   async renameImage(
     oldName: string,
     newName: string,
@@ -186,10 +161,12 @@ export class ImageManager extends BaseDatabaseManager {
   ): Promise<string> {
     try {
       const newRelativePath: string = await invoke("rename_image", {
-        oldName: oldName,
-        newName: newName,
-        relativePath: relativePath,
-        workspacePath: workspacePath,
+        request: {
+          old_name: oldName,
+          new_name: newName,
+          relative_path: relativePath,
+          workspace_path: workspacePath,
+        },
       });
 
       await this.updateImageName(relativePath, newName, newRelativePath);
@@ -200,9 +177,6 @@ export class ImageManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Deletes an image file and removes it from the database
-   */
   async deleteImage(
     relativePath: string,
     workspacePath: string
@@ -220,9 +194,6 @@ export class ImageManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Gets the absolute path of an image file
-   */
   async getImageAbsolutePath(
     relativePath: string,
     workspacePath: string
@@ -238,9 +209,6 @@ export class ImageManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Gets an image as base64 encoded string
-   */
   async getImageAsBase64(
     relativePath: string,
     workspacePath: string
