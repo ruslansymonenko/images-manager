@@ -1,64 +1,12 @@
 import Database from "@tauri-apps/plugin-sql";
 import { invoke } from "@tauri-apps/api/core";
+import { BaseDatabaseManager } from "./base";
+import { Workspace } from "./types";
 
-export interface Workspace {
-  id?: number;
-  name: string;
-  absolute_path: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-class DatabaseManager {
-  private mainDb: Database | null = null;
-  private workspaceDb: Database | null = null;
-
-  private async ensureMainDbConnection(): Promise<Database> {
-    if (!this.mainDb) {
-      console.log("Main database not initialized, initializing now...");
-      await this.initMainDatabase();
-    }
-
-    try {
-      await this.mainDb!.select("SELECT 1");
-    } catch (error) {
-      console.log("Database connection test failed, reinitializing...", error);
-      this.mainDb = null;
-      await this.initMainDatabase();
-    }
-
-    if (!this.mainDb) {
-      throw new Error("Failed to initialize main database connection");
-    }
-
-    return this.mainDb;
-  }
-
-  async initMainDatabase(): Promise<void> {
-    try {
-      console.log("Loading main database...");
-      this.mainDb = await Database.load("sqlite:main.db");
-      console.log("Main database loaded successfully");
-
-      console.log("Creating workspaces table...");
-      await this.mainDb.execute(`
-        CREATE TABLE IF NOT EXISTS workspaces (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          absolute_path TEXT NOT NULL UNIQUE,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-      `);
-
-      console.log("Main database initialized successfully");
-    } catch (error) {
-      console.error("Failed to initialize main database:", error);
-      console.error("Error details:", JSON.stringify(error, null, 2));
-      throw error;
-    }
-  }
-
+/**
+ * Workspace domain manager - handles all workspace-related database operations
+ */
+export class WorkspaceManager extends BaseDatabaseManager {
   async initWorkspaceDatabase(workspacePath: string): Promise<string> {
     try {
       const dbPath: string = await invoke("ensure_workspace_structure", {
@@ -74,6 +22,19 @@ class DatabaseManager {
           value TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      await this.workspaceDb.execute(`
+        CREATE TABLE IF NOT EXISTS images (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          relative_path TEXT NOT NULL UNIQUE,
+          file_size INTEGER NOT NULL,
+          extension TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          modified_at DATETIME NOT NULL
         )
       `);
 
@@ -207,22 +168,4 @@ class DatabaseManager {
       throw error;
     }
   }
-
-  async closeWorkspaceDatabase(): Promise<void> {
-    if (this.workspaceDb) {
-      await this.workspaceDb.close();
-      this.workspaceDb = null;
-      console.log("Workspace database connection closed");
-    }
-  }
-
-  getWorkspaceDatabase(): Database | null {
-    return this.workspaceDb;
-  }
-
-  getMainDatabase(): Database | null {
-    return this.mainDb;
-  }
 }
-
-export const databaseManager = new DatabaseManager();
