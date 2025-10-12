@@ -19,8 +19,7 @@ const ImageDetailsPage: React.FC = () => {
     renameImage,
     deleteImage,
   } = useImages();
-  const { getTagsForImage, addTagToImage, removeTagFromImage, createTag } =
-    useTag();
+  const { getTagsForImage, addTagToImage, removeTagFromImage } = useTag();
 
   const [imageSrc, setImageSrc] = useState<string>("");
   const [imageError, setImageError] = useState(false);

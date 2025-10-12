@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Search, X, ChevronDown } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 import { Tag } from "../utils/database";
 import { useTag } from "../contexts/TagContext";
 import TagChip from "./TagChip";
