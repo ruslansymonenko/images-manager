@@ -12,7 +12,7 @@ interface Props {
 const ImageConnections: React.FC<Props> = ({ currentImage }) => {
   const navigate = useNavigate();
   const { currentWorkspace } = useWorkspace();
-  const { images, getImageAsBase64 } = useImages();
+  const { images, getImageAsBase64, selectImage } = useImages();
   const {
     getConnectionsForImage,
     createConnection,
@@ -149,6 +149,8 @@ const ImageConnections: React.FC<Props> = ({ currentImage }) => {
   };
 
   const handleImageClick = (imagePath: string) => {
+    // Clear the selected image from context before navigating
+    selectImage(null);
     const encodedPath = encodeURIComponent(imagePath);
     navigate(`/gallery/image/${encodedPath}`);
   };

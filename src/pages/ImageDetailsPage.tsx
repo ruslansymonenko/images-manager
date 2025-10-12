@@ -12,14 +12,8 @@ const ImageDetailsPage: React.FC = () => {
   const { imagePath } = useParams<{ imagePath: string }>();
   const navigate = useNavigate();
   const { currentWorkspace } = useWorkspace();
-  const {
-    images,
-    selectedImage,
-    selectImage,
-    getImageAsBase64,
-    renameImage,
-    deleteImage,
-  } = useImages();
+  const { images, selectImage, getImageAsBase64, renameImage, deleteImage } =
+    useImages();
   const { getTagsForImage, addTagToImage, removeTagFromImage } = useTag();
 
   const [imageSrc, setImageSrc] = useState<string>("");
@@ -32,14 +26,13 @@ const ImageDetailsPage: React.FC = () => {
 
   // Find the current image based on the URL parameter
   const decodedPath = imagePath ? decodeURIComponent(imagePath) : "";
-  const currentImage =
-    selectedImage || images.find((img) => img.relative_path === decodedPath);
+  const currentImage = images.find((img) => img.relative_path === decodedPath);
 
   useEffect(() => {
-    if (currentImage && currentImage !== selectedImage) {
+    if (currentImage) {
       selectImage(currentImage);
     }
-  }, [currentImage, selectedImage, selectImage]);
+  }, [currentImage, selectImage]);
 
   useEffect(() => {
     const loadImageSrc = async () => {
