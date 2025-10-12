@@ -1,7 +1,7 @@
 import React from "react";
 import cx from "clsx";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
 interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -21,8 +21,8 @@ const sizeClass: Record<ButtonSize, string> = {
 const variantClass: Record<ButtonVariant, string> = {
   primary: "btn-primary",
   secondary: "btn-secondary",
-  ghost:
-    "bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-lg",
+  ghost: "btn-ghost",
+  danger: "btn-danger",
 };
 
 const Button = React.forwardRef<HTMLButtonElement, Props>(
@@ -47,11 +47,10 @@ const Button = React.forwardRef<HTMLButtonElement, Props>(
         ref={ref}
         disabled={isDisabled}
         className={cx(
-          "transition-base inline-flex items-center justify-center font-medium rounded-lg",
+          "transition-base inline-flex items-center justify-center font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed",
           variantClass[variant],
           sizeClass[size],
           fullWidth && "w-full",
-          isDisabled && "opacity-50 cursor-not-allowed",
           className
         )}
         {...rest}

@@ -30,12 +30,8 @@ const TagChip: React.FC<TagChipProps> = ({
   const baseClasses = `
     inline-flex items-center gap-1 rounded-full font-medium transition-all duration-200
     ${sizeClasses[size]}
-    ${
-      selected
-        ? "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 ring-2 ring-blue-500"
-        : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-    }
-    ${onClick ? "cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600" : ""}
+    ${selected ? "ring-2 ring-focus" : "bg-tertiary text-primary"}
+    ${onClick ? "cursor-pointer hover:bg-hover" : ""}
     ${className}
   `.trim();
 
@@ -73,7 +69,7 @@ const TagChip: React.FC<TagChipProps> = ({
       {removable && onRemove && (
         <button
           onClick={handleRemove}
-          className="ml-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-full p-0.5 transition-colors"
+          className="ml-1 hover:bg-hover rounded-full p-0.5 transition-colors"
           title={`Remove ${tag.name} tag`}
         >
           <X className="w-3 h-3" />

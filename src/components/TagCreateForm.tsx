@@ -45,34 +45,30 @@ const ComponentName: React.FC<Props> = ({
   ];
 
   return (
-    <div className="mb-6 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
-      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-3">
-        Create New Tag
-      </h3>
+    <div className="mb-6 p-4 rounded-lg bg-elevated shadow-lg border">
+      <h3 className="text-lg font-medium text-primary mb-3">Create New Tag</h3>
 
       {createError && (
-        <div className="mb-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
+        <div className="mb-3 text-sm text-error bg-error p-2 rounded">
           {createError}
         </div>
       )}
 
       <div className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Tag Name
-          </label>
+          <label className="block text-sm font-medium mb-1">Tag Name</label>
           <input
             type="text"
             value={newTagName}
             onChange={(e) => setNewTagName(e.target.value)}
             placeholder="Enter tag name"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 rounded-md bg-tertiary text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={isCreating}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-primary mb-2">
             Color
           </label>
           <div className="flex items-center gap-2 mb-2">
@@ -80,12 +76,10 @@ const ComponentName: React.FC<Props> = ({
               type="color"
               value={newTagColor}
               onChange={(e) => setNewTagColor(e.target.value)}
-              className="w-8 h-8 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+              className="w-8 h-8 rounded cursor-pointer"
               disabled={isCreating}
             />
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {newTagColor}
-            </span>
+            <span className="text-sm text-secondary">{newTagColor}</span>
           </div>
           <div className="grid grid-cols-10 gap-1">
             {predefinedColors.map((color) => (
@@ -93,9 +87,7 @@ const ComponentName: React.FC<Props> = ({
                 key={color}
                 onClick={() => setNewTagColor(color)}
                 className={`w-6 h-6 rounded border-2 transition-all ${
-                  newTagColor === color
-                    ? "border-gray-900 dark:border-gray-100 scale-110"
-                    : "border-gray-300 dark:border-gray-600 hover:scale-105"
+                  newTagColor === color ? "scale-110" : "hover:scale-105"
                 }`}
                 style={{ backgroundColor: color }}
                 disabled={isCreating}

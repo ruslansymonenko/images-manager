@@ -121,32 +121,26 @@ const TagManager: React.FC<TagManagerProps> = ({
 
   if (isEditing) {
     return (
-      <div
-        className={`p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 ${className}`}
-      >
+      <div className={`p-4 rounded-lg bg-tertiary ${className}`}>
         <div className="space-y-3">
-          {error && (
-            <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
-              {error}
-            </div>
-          )}
+          {error && <div className="text-sm bg-error p-2 rounded">{error}</div>}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-secondary mb-1">
               Tag Name
             </label>
             <input
               type="text"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2  rounded-md bg-tertiary text-secondary focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter tag name"
               disabled={isLoading}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-secondary mb-2">
               Color
             </label>
             <div className="flex items-center gap-2 mb-2">
@@ -154,12 +148,10 @@ const TagManager: React.FC<TagManagerProps> = ({
                 type="color"
                 value={editColor}
                 onChange={(e) => setEditColor(e.target.value)}
-                className="w-8 h-8 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+                className="w-8 h-8 rounded cursor-pointer"
                 disabled={isLoading}
               />
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {editColor}
-              </span>
+              <span className="text-sm text-secondary">{editColor}</span>
             </div>
             <div className="grid grid-cols-10 gap-1">
               {predefinedColors.map((color) => (
@@ -167,9 +159,7 @@ const TagManager: React.FC<TagManagerProps> = ({
                   key={color}
                   onClick={() => setEditColor(color)}
                   className={`w-6 h-6 rounded border-2 transition-all ${
-                    editColor === color
-                      ? "border-gray-900 dark:border-gray-100 scale-110"
-                      : "border-gray-300 dark:border-gray-600 hover:scale-105"
+                    editColor === color ? "scale-110" : "hover:scale-105"
                   }`}
                   style={{ backgroundColor: color }}
                   disabled={isLoading}
@@ -204,7 +194,7 @@ const TagManager: React.FC<TagManagerProps> = ({
 
   return (
     <div
-      className={`p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 hover:shadow-md transition-shadow ${className}`}
+      className={`p-4 rounded-lg bg-tertiary hover:shadow-md transition-shadow ${className}`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -213,10 +203,8 @@ const TagManager: React.FC<TagManagerProps> = ({
             style={{ backgroundColor: tag.color || "#6b7280" }}
           />
           <div>
-            <h3 className="font-medium text-gray-900 dark:text-gray-100">
-              {tag.name}
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <h3 className="font-medium text-primary">{tag.name}</h3>
+            <p className="text-sm text-secondary">
               {tag.image_count} {tag.image_count === 1 ? "image" : "images"}
             </p>
           </div>
@@ -226,7 +214,7 @@ const TagManager: React.FC<TagManagerProps> = ({
           <button
             onClick={handleStartEdit}
             disabled={isLoading}
-            className="p-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+            className="p-2 text-primary rounded transition-colors"
             title="Edit tag"
           >
             <Edit2 className="w-4 h-4" />
@@ -234,7 +222,7 @@ const TagManager: React.FC<TagManagerProps> = ({
           <button
             onClick={handleDelete}
             disabled={isLoading}
-            className="p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+            className="p-2 text-primary rounded transition-colors"
             title="Delete tag"
           >
             <Trash2 className="w-4 h-4" />
@@ -242,11 +230,7 @@ const TagManager: React.FC<TagManagerProps> = ({
         </div>
       </div>
 
-      {error && (
-        <div className="mt-2 text-sm text-red-600 dark:text-red-400">
-          {error}
-        </div>
-      )}
+      {error && <div className="mt-2 text-sm text-error">{error}</div>}
     </div>
   );
 };

@@ -168,24 +168,22 @@ const ImageConnections: React.FC<Props> = ({ currentImage }) => {
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+      <label className="block text-sm font-medium text-secondary mb-3">
         Connected Images
       </label>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <div className="mb-4 p-3 bg-error rounded-md">
+          <p className="text-sm text-primary">{error}</p>
         </div>
       )}
 
       {isLoadingConnections ? (
         <div className="flex items-center justify-center py-4">
-          <div className="text-gray-500 dark:text-gray-400">
-            Loading connections...
-          </div>
+          <div className="text-secondary">Loading connections...</div>
         </div>
       ) : connections.length === 0 ? (
-        <div className="text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-4 rounded-md text-center">
+        <div className="text-secondary bg-tertiary p-4 rounded-md text-center">
           No connections yet
         </div>
       ) : (
@@ -193,10 +191,10 @@ const ImageConnections: React.FC<Props> = ({ currentImage }) => {
           {connections.map((connection) => (
             <div
               key={connection.connection_id}
-              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center gap-3 p-3 bg-tertiary rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <div
-                className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-md overflow-hidden cursor-pointer flex-shrink-0"
+                className="w-12 h-12 bg-tertiary rounded-md overflow-hidden cursor-pointer flex-shrink-0"
                 onClick={() =>
                   handleImageClick(connection.connected_image.relative_path)
                 }
@@ -234,14 +232,14 @@ const ImageConnections: React.FC<Props> = ({ currentImage }) => {
 
               <div className="flex-1 min-w-0">
                 <p
-                  className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
+                  className="text-sm font-medium text-secondary truncate cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
                   onClick={() =>
                     handleImageClick(connection.connected_image.relative_path)
                   }
                 >
                   {connection.connected_image.name}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                <p className="text-xs text-secondary truncate">
                   {connection.connected_image.relative_path}
                 </p>
               </div>
@@ -284,8 +282,8 @@ const ImageConnections: React.FC<Props> = ({ currentImage }) => {
             : "Add Connection"}
         </button>
       ) : (
-        <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+        <div className="space-y-3 p-4 bg-tertiary rounded-md">
+          <h4 className="text-sm font-medium text-secondary">
             Connect to another image:
           </h4>
 
@@ -296,13 +294,13 @@ const ImageConnections: React.FC<Props> = ({ currentImage }) => {
                 className={`flex items-center gap-3 p-2 rounded-md cursor-pointer transition-colors ${
                   selectedImageId === image.id
                     ? "bg-blue-100 dark:bg-blue-900/30"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                    : "hover:bg-gray-100 dark:hover:bg-gray-300"
                 } ${connectionExists[image.id!] ? "opacity-50" : ""}`}
                 onClick={() =>
                   !connectionExists[image.id!] && setSelectedImageId(image.id!)
                 }
               >
-                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded overflow-hidden flex-shrink-0">
+                <div className="w-8 h-8 bg-tertiary rounded overflow-hidden flex-shrink-0">
                   <div className="w-full h-full flex items-center justify-center">
                     <svg
                       className="w-4 h-4 text-gray-400"
@@ -321,13 +319,11 @@ const ImageConnections: React.FC<Props> = ({ currentImage }) => {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900 dark:text-gray-100 truncate">
+                  <p className="text-sm text-secondary truncate">
                     {image.name}
                   </p>
                   {connectionExists[image.id!] && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Already connected
-                    </p>
+                    <p className="text-xs text-secondary">Already connected</p>
                   )}
                 </div>
 
@@ -352,7 +348,7 @@ const ImageConnections: React.FC<Props> = ({ currentImage }) => {
                 setSelectedImageId(null);
               }}
               disabled={isLoading}
-              className="px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50 transition-colors"
+              className="px-3 py-2 bg-gray-600 text-white rounded-md disabled:opacity-50 transition-colors"
             >
               Cancel
             </button>
