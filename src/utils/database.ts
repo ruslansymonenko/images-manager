@@ -13,6 +13,29 @@ class DatabaseManager {
   private mainDb: Database | null = null;
   private workspaceDb: Database | null = null;
 
+  // Ensure main database connection is valid
+  private async ensureMainDbConnection(): Promise<Database> {
+    if (!this.mainDb) {
+      console.log("Main database not initialized, initializing now...");
+      await this.initMainDatabase();
+    }
+
+    // Test the connection with a simple query
+    try {
+      await this.mainDb!.select("SELECT 1");
+    } catch (error) {
+      console.log("Database connection test failed, reinitializing...", error);
+      this.mainDb = null;
+      await this.initMainDatabase();
+    }
+
+    if (!this.mainDb) {
+      throw new Error("Failed to initialize main database connection");
+    }
+
+    return this.mainDb;
+  }
+
   // Initialize main app database
   async initMainDatabase(): Promise<void> {
     try {
@@ -80,9 +103,7 @@ class DatabaseManager {
 
   // Add a new workspace to the main database
   async addWorkspace(workspace: Omit<Workspace, "id">): Promise<number> {
-    if (!this.mainDb) {
-      throw new Error("Main database not initialized");
-    }
+    const db = await this.ensureMainDbConnection();
 
     try {
       // Validate workspace path
@@ -90,7 +111,7 @@ class DatabaseManager {
         path: workspace.absolute_path,
       });
 
-      const result = await this.mainDb.execute(
+      const result = await db.execute(
         `INSERT INTO workspaces (name, absolute_path, created_at, updated_at) 
          VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
         [workspace.name, workspace.absolute_path]
@@ -106,12 +127,10 @@ class DatabaseManager {
 
   // Get all workspaces from the main database
   async getAllWorkspaces(): Promise<Workspace[]> {
-    if (!this.mainDb) {
-      throw new Error("Main database not initialized");
-    }
+    const db = await this.ensureMainDbConnection();
 
     try {
-      const result = await this.mainDb.select<Workspace[]>(
+      const result = await db.select<Workspace[]>(
         "SELECT * FROM workspaces ORDER BY updated_at DESC"
       );
       return result;
@@ -123,12 +142,10 @@ class DatabaseManager {
 
   // Get workspace by path
   async getWorkspaceByPath(path: string): Promise<Workspace | null> {
-    if (!this.mainDb) {
-      throw new Error("Main database not initialized");
-    }
+    const db = await this.ensureMainDbConnection();
 
     try {
-      const result = await this.mainDb.select<Workspace[]>(
+      const result = await db.select<Workspace[]>(
         "SELECT * FROM workspaces WHERE absolute_path = ?",
         [path]
       );
@@ -141,12 +158,10 @@ class DatabaseManager {
 
   // Update workspace's updated_at timestamp
   async updateWorkspaceTimestamp(id: number): Promise<void> {
-    if (!this.mainDb) {
-      throw new Error("Main database not initialized");
-    }
+    const db = await this.ensureMainDbConnection();
 
     try {
-      await this.mainDb.execute(
+      await db.execute(
         "UPDATE workspaces SET updated_at = CURRENT_TIMESTAMP WHERE id = ?",
         [id]
       );
@@ -158,12 +173,10 @@ class DatabaseManager {
 
   // Remove workspace from main database
   async removeWorkspace(id: number): Promise<void> {
-    if (!this.mainDb) {
-      throw new Error("Main database not initialized");
-    }
+    const db = await this.ensureMainDbConnection();
 
     try {
-      await this.mainDb.execute("DELETE FROM workspaces WHERE id = ?", [id]);
+      await db.execute("DELETE FROM workspaces WHERE id = ?", [id]);
       console.log("Workspace removed successfully");
     } catch (error) {
       console.error("Failed to remove workspace:", error);

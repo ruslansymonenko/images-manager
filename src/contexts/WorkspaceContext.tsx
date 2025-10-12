@@ -52,11 +52,28 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({
 
   const refreshWorkspaces = async () => {
     try {
+      console.log("Refreshing workspaces...");
       const allWorkspaces = await databaseManager.getAllWorkspaces();
       setWorkspaces(allWorkspaces);
+      console.log(`Loaded ${allWorkspaces.length} workspaces`);
     } catch (error) {
       console.error("Failed to refresh workspaces:", error);
-      throw error;
+
+      // If database connection issue, try to reinitialize
+      if (error instanceof Error && error.message.includes("closed pool")) {
+        console.log("Database connection lost, attempting to reinitialize...");
+        try {
+          await databaseManager.initMainDatabase();
+          const allWorkspaces = await databaseManager.getAllWorkspaces();
+          setWorkspaces(allWorkspaces);
+          console.log("Database reinitialized successfully");
+        } catch (reinitError) {
+          console.error("Failed to reinitialize database:", reinitError);
+          throw reinitError;
+        }
+      } else {
+        throw error;
+      }
     }
   };
 
@@ -85,18 +102,40 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({
 
   const removeWorkspace = async (id: number) => {
     try {
-      await databaseManager.removeWorkspace(id);
+      console.log(`Removing workspace with ID: ${id}`);
 
-      // If the removed workspace is currently open, close it
+      // If the removed workspace is currently open, close it first
       if (currentWorkspace && currentWorkspace.id === id) {
+        console.log("Closing currently open workspace before removal");
         await closeWorkspace();
       }
 
+      await databaseManager.removeWorkspace(id);
       await refreshWorkspaces();
-      console.log("Workspace removed from context");
+      console.log("Workspace removed from context successfully");
     } catch (error) {
       console.error("Failed to remove workspace from context:", error);
-      throw error;
+
+      // If database connection issue, try to reinitialize and retry
+      if (error instanceof Error && error.message.includes("closed pool")) {
+        console.log(
+          "Database connection lost during removal, attempting to recover..."
+        );
+        try {
+          await databaseManager.initMainDatabase();
+          await databaseManager.removeWorkspace(id);
+          await refreshWorkspaces();
+          console.log("Workspace removal recovered successfully");
+        } catch (recoveryError) {
+          console.error(
+            "Failed to recover from database connection error:",
+            recoveryError
+          );
+          throw recoveryError;
+        }
+      } else {
+        throw error;
+      }
     }
   };
 
