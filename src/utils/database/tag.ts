@@ -11,9 +11,6 @@ import {
  * Tag domain manager - handles all tag-related database operations
  */
 export class TagManager extends BaseDatabaseManager {
-  /**
-   * Create a new tag
-   */
   async createTag(
     tag: Omit<Tag, "id" | "created_at" | "updated_at">
   ): Promise<number> {
@@ -36,9 +33,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Get all tags in the workspace
-   */
   async getAllTags(): Promise<Tag[]> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -55,9 +49,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Get all tags with their image counts
-   */
   async getAllTagsWithImageCount(): Promise<TagWithImageCount[]> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -78,9 +69,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Get tag by ID
-   */
   async getTagById(id: number): Promise<Tag | null> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -98,9 +86,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Update a tag
-   */
   async updateTag(
     id: number,
     updates: Partial<Omit<Tag, "id" | "created_at" | "updated_at">>
@@ -142,9 +127,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Delete a tag and all its image associations
-   */
   async deleteTag(id: number): Promise<void> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -167,9 +149,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Add a tag to an image
-   */
   async addTagToImage(imageId: number, tagId: number): Promise<void> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -199,9 +178,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Remove a tag from an image
-   */
   async removeTagFromImage(imageId: number, tagId: number): Promise<void> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -220,9 +196,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Get all tags for a specific image
-   */
   async getTagsForImage(imageId: number): Promise<Tag[]> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -243,9 +216,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Get all images with their tags
-   */
   async getAllImagesWithTags(): Promise<ImageWithTags[]> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -271,9 +241,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Get images that have all specified tags (AND operation)
-   */
   async getImagesByTags(tagIds: number[]): Promise<ImageWithTags[]> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -310,9 +277,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Get images that have any of the specified tags (OR operation)
-   */
   async getImagesByTagsOr(tagIds: number[]): Promise<ImageWithTags[]> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -346,9 +310,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Search tags by name
-   */
   async searchTags(query: string): Promise<Tag[]> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
@@ -366,9 +327,6 @@ export class TagManager extends BaseDatabaseManager {
     }
   }
 
-  /**
-   * Check if a tag name already exists
-   */
   async tagNameExists(name: string, excludeId?: number): Promise<boolean> {
     if (!this.workspaceDb) {
       throw new Error("Workspace database not initialized");
