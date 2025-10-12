@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import "./styles.css";
 import { Layout } from "./components";
+import { WorkspaceProvider } from "./contexts/WorkspaceContext";
 import MainPage from "./pages/MainPage";
 import WorkspacePage from "./pages/WorkspacePage";
 import GalleryPage from "./pages/GalleryPage";
@@ -11,21 +12,23 @@ import SettingsPage from "./pages/SettingsPage";
 
 function App() {
   return (
-    <HashRouter>
-      <Routes>
-        {/* Main page without navbar */}
-        <Route path="/" element={<MainPage />} />
+    <WorkspaceProvider>
+      <HashRouter>
+        <Routes>
+          {/* Main page */}
+          <Route path="/" element={<MainPage />} />
 
-        {/* All other pages with navbar through Layout */}
-        <Route path="/" element={<Layout />}>
-          <Route path="workspace" element={<WorkspacePage />} />
-          <Route path="gallery" element={<GalleryPage />} />
-          <Route path="tags" element={<TagsPage />} />
-          <Route path="connections" element={<ConnectionsPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-        </Route>
-      </Routes>
-    </HashRouter>
+          {/* All other pages */}
+          <Route path="/" element={<Layout />}>
+            <Route path="workspace" element={<WorkspacePage />} />
+            <Route path="gallery" element={<GalleryPage />} />
+            <Route path="tags" element={<TagsPage />} />
+            <Route path="connections" element={<ConnectionsPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
+        </Routes>
+      </HashRouter>
+    </WorkspaceProvider>
   );
 }
 

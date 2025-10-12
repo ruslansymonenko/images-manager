@@ -2,32 +2,90 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderClosed } from "lucide-react";
-import { Button } from "../components";
+import { useWorkspace } from "../contexts/WorkspaceContext";
+import RecentWorkspaces from "../components/RecentWorkspaces";
+import SelectWorkspaceForm from "../components/SelectWorkspaceForm";
 
 interface Props {}
 
 const MainPage: React.FC<Props> = () => {
   const [folderPath, setFolderPath] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const navigate = useNavigate();
+  const { workspaces, isInitialized, openWorkspace, removeWorkspace } =
+    useWorkspace();
 
   const openFolder = async () => {
-    const folder = await open({
-      multiple: false,
-      directory: true,
-    });
+    try {
+      const folder = await open({
+        multiple: false,
+        directory: true,
+      });
 
-    if (folder) {
-      setFolderPath(folder);
+      if (folder) {
+        setFolderPath(folder);
+        setError(null);
+      }
+    } catch (err) {
+      console.error("Failed to open folder:", err);
+      setError("Failed to open folder dialog");
     }
-
-    console.log(folder);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (folderPath) {
-      // Navigate to workspace page after selecting folder
+    if (!folderPath) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await openWorkspace(folderPath);
       navigate("/workspace");
+    } catch (err) {
+      console.error("Failed to open workspace:", err);
+      setError(err instanceof Error ? err.message : "Failed to open workspace");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOpenRecentWorkspace = async (workspacePath: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await openWorkspace(workspacePath);
+      navigate("/workspace");
+    } catch (err) {
+      console.error("Failed to open recent workspace:", err);
+      setError(err instanceof Error ? err.message : "Failed to open workspace");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRemoveWorkspace = async (
+    e: React.MouseEvent,
+    workspaceId: number
+  ) => {
+    e.stopPropagation();
+
+    if (
+      window.confirm(
+        "Are you sure you want to remove this workspace from the list? This will not delete the actual folder."
+      )
+    ) {
+      try {
+        await removeWorkspace(workspaceId);
+      } catch (err) {
+        console.error("Failed to remove workspace:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to remove workspace"
+        );
+      }
     }
   };
 
@@ -47,43 +105,34 @@ const MainPage: React.FC<Props> = () => {
             </p>
           </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label
-                htmlFor="workspace-path"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Workspace Path
-              </label>
-              <div className="flex space-x-2">
-                <input
-                  id="workspace-path"
-                  type="text"
-                  {...(folderPath
-                    ? { value: folderPath }
-                    : { placeholder: "Select a folder..." })}
-                  className="input-base flex-1"
-                  required
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="min-w-[80px]"
-                  onClick={openFolder}
-                >
-                  Browse
-                </Button>
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                A new workspace will be created if the folder doesn't contain
-                one
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-red-700 dark:text-red-400">{error}</p>
+            </div>
+          )}
+          <SelectWorkspaceForm
+            folderPath={folderPath}
+            isLoading={isLoading}
+            openFolder={openFolder}
+            handleSubmit={handleSubmit}
+          />
+
+          {isInitialized && workspaces.length > 0 && (
+            <RecentWorkspaces
+              workspaces={workspaces}
+              handleOpenRecentWorkspace={handleOpenRecentWorkspace}
+              handleRemoveWorkspace={handleRemoveWorkspace}
+            />
+          )}
+
+          {isInitialized && workspaces.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400">
+                No recent workspaces found. Create your first workspace by
+                selecting a folder above.
               </p>
             </div>
-
-            <Button type="submit" variant="primary" fullWidth>
-              Open Workspace
-            </Button>
-          </form>
+          )}
         </div>
       </div>
     </div>
