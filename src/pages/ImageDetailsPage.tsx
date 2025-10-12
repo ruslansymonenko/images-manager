@@ -6,6 +6,7 @@ import { useTag } from "../contexts/TagContext";
 import { Tag } from "../utils/database";
 import ImageDetailsTags from "../components/ImageDetailsTags";
 import ImageDetailsDates from "../components/ImageDetailsDates";
+import { ImageConnections } from "../components";
 
 const ImageDetailsPage: React.FC = () => {
   const { imagePath } = useParams<{ imagePath: string }>();
@@ -369,6 +370,9 @@ const ImageDetailsPage: React.FC = () => {
             handleTagsChange={handleTagsChange}
             handleRemoveTag={handleRemoveTag}
           />
+
+          {/* Connections */}
+          <ImageConnections currentImage={currentImage} />
         </div>
       </div>
     </div>
