@@ -14,12 +14,19 @@
     "windows": [
       {
         "title": "images-manager",
-        "width": 800,
-        "height": 600
+        "width": 1200,
+        "height": 800
       }
     ],
     "security": {
-      "csp": null
+      "csp": null,
+      "capabilities": ["default"]
+    }
+  },
+  "plugins": {
+    "sql": {
+      "preload": ["sqlite:main.db"],
+      "allowedDatabases": ["sqlite:*"]
     }
   },
   "bundle": {

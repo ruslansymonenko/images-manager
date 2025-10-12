@@ -1,6 +1,14 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, FolderOpen, Images, Tags, Link, Settings } from "lucide-react";
+import {
+  Home,
+  FolderOpen,
+  Images,
+  Tags,
+  Link,
+  Settings,
+  LogOut,
+} from "lucide-react";
 
 interface Props {}
 
@@ -11,6 +19,7 @@ const Navbar: React.FC<Props> = () => {
     { path: "/tags", label: "Tags", icon: Tags },
     { path: "/connections", label: "Connections", icon: Link },
     { path: "/settings", label: "Settings", icon: Settings },
+    { path: "/", label: "Exit", icon: LogOut },
   ];
 
   return (
