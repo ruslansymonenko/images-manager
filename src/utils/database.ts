@@ -270,7 +270,7 @@ class DatabaseManager {
     try {
       // Scan images using Tauri command
       const scannedImages: ImageFile[] = await invoke("scan_images", {
-        workspacePath,
+        workspacePath: workspacePath,
       });
 
       // Clear existing images and insert new ones
@@ -397,9 +397,9 @@ class DatabaseManager {
   ): Promise<string> {
     try {
       const newRelativePath: string = await invoke("move_image", {
-        old_path: oldPath,
-        new_path: newPath,
-        workspace_path: workspacePath,
+        oldPath: oldPath,
+        newPath: newPath,
+        workspacePath: workspacePath,
       });
 
       await this.updateImagePath(oldPath, newRelativePath);
@@ -418,10 +418,10 @@ class DatabaseManager {
   ): Promise<string> {
     try {
       const newRelativePath: string = await invoke("rename_image", {
-        old_name: oldName,
-        new_name: newName,
-        relative_path: relativePath,
-        workspace_path: workspacePath,
+        oldName: oldName,
+        newName: newName,
+        relativePath: relativePath,
+        workspacePath: workspacePath,
       });
 
       await this.updateImageName(relativePath, newName, newRelativePath);
@@ -438,8 +438,8 @@ class DatabaseManager {
   ): Promise<void> {
     try {
       await invoke("delete_image", {
-        relative_path: relativePath,
-        workspace_path: workspacePath,
+        relativePath: relativePath,
+        workspacePath: workspacePath,
       });
 
       await this.deleteImageFromDb(relativePath);
@@ -455,11 +455,26 @@ class DatabaseManager {
   ): Promise<string> {
     try {
       return await invoke("get_image_absolute_path", {
-        relative_path: relativePath,
-        workspace_path: workspacePath,
+        relativePath: relativePath,
+        workspacePath: workspacePath,
       });
     } catch (error) {
       console.error("Failed to get image absolute path:", error);
+      throw error;
+    }
+  }
+
+  async getImageAsBase64(
+    relativePath: string,
+    workspacePath: string
+  ): Promise<string> {
+    try {
+      return await invoke("get_image_as_base64", {
+        relativePath: relativePath,
+        workspacePath: workspacePath,
+      });
+    } catch (error) {
+      console.error("Failed to get image as base64:", error);
       throw error;
     }
   }

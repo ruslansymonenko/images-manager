@@ -23,6 +23,7 @@ interface ImageContextType {
   deleteImage: (relativePath: string) => Promise<void>;
   selectImage: (image: ImageFile | null) => void;
   getImageAbsolutePath: (relativePath: string) => Promise<string>;
+  getImageAsBase64: (relativePath: string) => Promise<string>;
 }
 
 const ImageContext = createContext<ImageContextType | undefined>(undefined);
@@ -212,6 +213,17 @@ export const ImageProvider: React.FC<ImageProviderProps> = ({ children }) => {
     );
   };
 
+  const getImageAsBase64 = async (relativePath: string): Promise<string> => {
+    if (!currentWorkspace) {
+      throw new Error("No workspace available");
+    }
+
+    return databaseManager.getImageAsBase64(
+      relativePath,
+      currentWorkspace.absolute_path
+    );
+  };
+
   const contextValue: ImageContextType = {
     images,
     selectedImage,
@@ -223,6 +235,7 @@ export const ImageProvider: React.FC<ImageProviderProps> = ({ children }) => {
     deleteImage,
     selectImage,
     getImageAbsolutePath,
+    getImageAsBase64,
   };
 
   return (

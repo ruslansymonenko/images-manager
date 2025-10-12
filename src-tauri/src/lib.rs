@@ -3,6 +3,7 @@ use std::path::Path;
 use serde::{Deserialize, Serialize};
 use walkdir::WalkDir;
 use chrono::{DateTime, Utc};
+use base64::Engine;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Workspace {
@@ -243,6 +244,44 @@ async fn get_image_absolute_path(relative_path: String, workspace_path: String) 
     Ok(absolute_path.to_string_lossy().to_string())
 }
 
+#[tauri::command]
+async fn get_image_as_base64(relative_path: String, workspace_path: String) -> Result<String, String> {
+    let workspace_dir = Path::new(&workspace_path);
+    let absolute_path = workspace_dir.join(&relative_path);
+    
+    if !absolute_path.exists() {
+        return Err("Image file does not exist".to_string());
+    }
+    
+    // Read the file
+    let image_data = fs::read(&absolute_path)
+        .map_err(|e| format!("Failed to read image file: {}", e))?;
+    
+    // Get the file extension to determine the MIME type
+    let extension = absolute_path
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .unwrap_or("")
+        .to_lowercase();
+    
+    let mime_type = match extension.as_str() {
+        "jpg" | "jpeg" => "image/jpeg",
+        "png" => "image/png",
+        "gif" => "image/gif",
+        "bmp" => "image/bmp", 
+        "webp" => "image/webp",
+        "tiff" | "tif" => "image/tiff",
+        "svg" => "image/svg+xml",
+        _ => "image/jpeg", // default fallback
+    };
+    
+    // Encode to base64
+    let base64_string = base64::engine::general_purpose::STANDARD.encode(&image_data);
+    
+    // Return as data URL
+    Ok(format!("data:{};base64,{}", mime_type, base64_string))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -258,7 +297,8 @@ pub fn run() {
             move_image,
             rename_image,
             delete_image,
-            get_image_absolute_path
+            get_image_absolute_path,
+            get_image_as_base64
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

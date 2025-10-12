@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useImages } from "../contexts/ImageContext";
 import { useWorkspace } from "../contexts/WorkspaceContext";
-import { convertFileSrc } from "@tauri-apps/api/core";
 
 const ImageDetailsPage: React.FC = () => {
   const { imagePath } = useParams<{ imagePath: string }>();
@@ -12,7 +11,7 @@ const ImageDetailsPage: React.FC = () => {
     images,
     selectedImage,
     selectImage,
-    getImageAbsolutePath,
+    getImageAsBase64,
     renameImage,
     deleteImage,
   } = useImages();
@@ -39,11 +38,8 @@ const ImageDetailsPage: React.FC = () => {
       if (!currentImage) return;
 
       try {
-        const absolutePath = await getImageAbsolutePath(
-          currentImage.relative_path
-        );
-        const tauriSrc = convertFileSrc(absolutePath);
-        setImageSrc(tauriSrc);
+        const base64Src = await getImageAsBase64(currentImage.relative_path);
+        setImageSrc(base64Src);
         setImageError(false);
       } catch (error) {
         console.error("Failed to load image source:", error);
@@ -52,7 +48,7 @@ const ImageDetailsPage: React.FC = () => {
     };
 
     loadImageSrc();
-  }, [currentImage, getImageAbsolutePath]);
+  }, [currentImage, getImageAsBase64]);
 
   useEffect(() => {
     if (currentImage) {

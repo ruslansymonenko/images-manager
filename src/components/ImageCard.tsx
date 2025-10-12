@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ImageFile } from "../utils/database";
 import { useImages } from "../contexts/ImageContext";
-import { convertFileSrc } from "@tauri-apps/api/core";
 
 interface ImageCardProps {
   image: ImageFile;
@@ -11,14 +10,13 @@ interface ImageCardProps {
 const ImageCard: React.FC<ImageCardProps> = ({ image, onImageClick }) => {
   const [imageSrc, setImageSrc] = useState<string>("");
   const [imageError, setImageError] = useState(false);
-  const { getImageAbsolutePath } = useImages();
+  const { getImageAsBase64 } = useImages();
 
   useEffect(() => {
     const loadImageSrc = async () => {
       try {
-        const absolutePath = await getImageAbsolutePath(image.relative_path);
-        const tauriSrc = convertFileSrc(absolutePath);
-        setImageSrc(tauriSrc);
+        const base64Src = await getImageAsBase64(image.relative_path);
+        setImageSrc(base64Src);
         setImageError(false);
       } catch (error) {
         console.error("Failed to load image source:", error);
@@ -27,7 +25,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onImageClick }) => {
     };
 
     loadImageSrc();
-  }, [image.relative_path, getImageAbsolutePath]);
+  }, [image.relative_path, getImageAsBase64]);
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
