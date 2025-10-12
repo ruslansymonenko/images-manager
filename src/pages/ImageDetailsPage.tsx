@@ -3,8 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useImages } from "../contexts/ImageContext";
 import { useWorkspace } from "../contexts/WorkspaceContext";
 import { useTag } from "../contexts/TagContext";
-import { TagChip, TagSelector } from "../components";
 import { Tag } from "../utils/database";
+import ImageDetailsTags from "../components/ImageDetailsTags";
+import ImageDetailsDates from "../components/ImageDetailsDates";
 
 const ImageDetailsPage: React.FC = () => {
   const { imagePath } = useParams<{ imagePath: string }>();
@@ -369,70 +370,15 @@ const ImageDetailsPage: React.FC = () => {
           </div>
 
           {/* Dates */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Last Modified
-              </label>
-              <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-                {formatDate(currentImage.modified_at)}
-              </p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Added to Database
-              </label>
-              <p className="text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-                {formatDate(
-                  currentImage.created_at || currentImage.updated_at || ""
-                )}
-              </p>
-            </div>
-          </div>
+          <ImageDetailsDates currentImage={currentImage} />
 
           {/* Tags */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Tags
-              </label>
-
-              {isLoadingTags ? (
-                <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-                  Loading tags...
-                </div>
-              ) : (
-                <>
-                  {/* Current Tags */}
-                  {imageTags.length > 0 && (
-                    <div className="mb-3">
-                      <div className="flex flex-wrap gap-1">
-                        {imageTags.map((tag) => (
-                          <TagChip
-                            key={tag.id}
-                            tag={tag}
-                            removable
-                            onRemove={() => handleRemoveTag(tag)}
-                            size="sm"
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Tag Selector */}
-                  <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
-                    <TagSelector
-                      selectedTags={imageTags}
-                      onTagsChange={handleTagsChange}
-                      placeholder="Add tags to this image..."
-                      allowCreate={true}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+          <ImageDetailsTags
+            imageTags={imageTags}
+            isLoadingTags={isLoadingTags}
+            handleTagsChange={handleTagsChange}
+            handleRemoveTag={handleRemoveTag}
+          />
         </div>
       </div>
     </div>
