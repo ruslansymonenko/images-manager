@@ -70,6 +70,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     // Add current theme class
     root.classList.add(theme);
 
+    // Debug logging
+    console.log("Theme changed to:", theme);
+    console.log("Document classes:", root.className);
+
     // Store global preference
     localStorage.setItem(GLOBAL_THEME_STORAGE_KEY, theme);
 

@@ -1,5 +1,6 @@
 import React from "react";
 import ThemeToggle from "../components/ThemeToggle";
+import { ThemeDebug } from "../components/ThemeDebug";
 
 interface Props {}
 
@@ -19,6 +20,11 @@ const SettingsPage: React.FC<Props> = () => {
           Appearance
         </h2>
         <ThemeToggle />
+
+        {/* Debug component - remove after testing */}
+        <div className="mt-6">
+          <ThemeDebug />
+        </div>
       </div>
 
       {/* Future Settings Sections */}
