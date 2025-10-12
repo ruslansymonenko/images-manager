@@ -3,7 +3,7 @@ import { Database } from "lucide-react";
 
 interface Props {}
 
-const WorkspaceStatusCard: React.FC<Props> = (props) => {
+const WorkspaceStatusCard: React.FC<Props> = () => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
       <div className="flex items-start space-x-4">

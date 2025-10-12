@@ -9,6 +9,30 @@ export interface Workspace {
   updated_at?: string;
 }
 
+export interface ImageFile {
+  id?: number;
+  name: string;
+  relative_path: string;
+  file_size: number;
+  created_at: string;
+  updated_at: string;
+  modified_at: string;
+  extension: string;
+}
+
+export interface MoveImageRequest {
+  old_path: string;
+  new_path: string;
+  workspace_path: string;
+}
+
+export interface RenameImageRequest {
+  old_name: string;
+  new_name: string;
+  relative_path: string;
+  workspace_path: string;
+}
+
 class DatabaseManager {
   private mainDb: Database | null = null;
   private workspaceDb: Database | null = null;
@@ -74,6 +98,19 @@ class DatabaseManager {
           value TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      await this.workspaceDb.execute(`
+        CREATE TABLE IF NOT EXISTS images (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          relative_path TEXT NOT NULL UNIQUE,
+          file_size INTEGER NOT NULL,
+          extension TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          modified_at DATETIME NOT NULL
         )
       `);
 
@@ -222,6 +259,209 @@ class DatabaseManager {
 
   getMainDatabase(): Database | null {
     return this.mainDb;
+  }
+
+  // Image management methods
+  async scanAndStoreImages(workspacePath: string): Promise<ImageFile[]> {
+    if (!this.workspaceDb) {
+      throw new Error("Workspace database not initialized");
+    }
+
+    try {
+      // Scan images using Tauri command
+      const scannedImages: ImageFile[] = await invoke("scan_images", {
+        workspacePath,
+      });
+
+      // Clear existing images and insert new ones
+      await this.workspaceDb.execute("DELETE FROM images");
+
+      for (const image of scannedImages) {
+        await this.workspaceDb.execute(
+          `INSERT INTO images (name, relative_path, file_size, extension, modified_at, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          [
+            image.name,
+            image.relative_path,
+            image.file_size,
+            image.extension,
+            image.modified_at,
+          ]
+        );
+      }
+
+      console.log(`Stored ${scannedImages.length} images in database`);
+      return scannedImages;
+    } catch (error) {
+      console.error("Failed to scan and store images:", error);
+      throw error;
+    }
+  }
+
+  async getAllImages(): Promise<ImageFile[]> {
+    if (!this.workspaceDb) {
+      throw new Error("Workspace database not initialized");
+    }
+
+    try {
+      const images = await this.workspaceDb.select<ImageFile[]>(
+        "SELECT * FROM images ORDER BY name"
+      );
+      return images;
+    } catch (error) {
+      console.error("Failed to get images:", error);
+      throw error;
+    }
+  }
+
+  async getImageByPath(relativePath: string): Promise<ImageFile | null> {
+    if (!this.workspaceDb) {
+      throw new Error("Workspace database not initialized");
+    }
+
+    try {
+      const images = await this.workspaceDb.select<ImageFile[]>(
+        "SELECT * FROM images WHERE relative_path = ?",
+        [relativePath]
+      );
+      return images.length > 0 ? images[0] : null;
+    } catch (error) {
+      console.error("Failed to get image by path:", error);
+      throw error;
+    }
+  }
+
+  async updateImagePath(oldPath: string, newPath: string): Promise<void> {
+    if (!this.workspaceDb) {
+      throw new Error("Workspace database not initialized");
+    }
+
+    try {
+      await this.workspaceDb.execute(
+        `UPDATE images SET 
+         relative_path = ?, 
+         updated_at = CURRENT_TIMESTAMP 
+         WHERE relative_path = ?`,
+        [newPath, oldPath]
+      );
+    } catch (error) {
+      console.error("Failed to update image path:", error);
+      throw error;
+    }
+  }
+
+  async updateImageName(
+    relativePath: string,
+    newName: string,
+    newPath: string
+  ): Promise<void> {
+    if (!this.workspaceDb) {
+      throw new Error("Workspace database not initialized");
+    }
+
+    try {
+      await this.workspaceDb.execute(
+        `UPDATE images SET 
+         name = ?, 
+         relative_path = ?, 
+         updated_at = CURRENT_TIMESTAMP 
+         WHERE relative_path = ?`,
+        [newName, newPath, relativePath]
+      );
+    } catch (error) {
+      console.error("Failed to update image name:", error);
+      throw error;
+    }
+  }
+
+  async deleteImageFromDb(relativePath: string): Promise<void> {
+    if (!this.workspaceDb) {
+      throw new Error("Workspace database not initialized");
+    }
+
+    try {
+      await this.workspaceDb.execute(
+        "DELETE FROM images WHERE relative_path = ?",
+        [relativePath]
+      );
+    } catch (error) {
+      console.error("Failed to delete image from database:", error);
+      throw error;
+    }
+  }
+
+  async moveImage(
+    oldPath: string,
+    newPath: string,
+    workspacePath: string
+  ): Promise<string> {
+    try {
+      const newRelativePath: string = await invoke("move_image", {
+        old_path: oldPath,
+        new_path: newPath,
+        workspace_path: workspacePath,
+      });
+
+      await this.updateImagePath(oldPath, newRelativePath);
+      return newRelativePath;
+    } catch (error) {
+      console.error("Failed to move image:", error);
+      throw error;
+    }
+  }
+
+  async renameImage(
+    oldName: string,
+    newName: string,
+    relativePath: string,
+    workspacePath: string
+  ): Promise<string> {
+    try {
+      const newRelativePath: string = await invoke("rename_image", {
+        old_name: oldName,
+        new_name: newName,
+        relative_path: relativePath,
+        workspace_path: workspacePath,
+      });
+
+      await this.updateImageName(relativePath, newName, newRelativePath);
+      return newRelativePath;
+    } catch (error) {
+      console.error("Failed to rename image:", error);
+      throw error;
+    }
+  }
+
+  async deleteImage(
+    relativePath: string,
+    workspacePath: string
+  ): Promise<void> {
+    try {
+      await invoke("delete_image", {
+        relative_path: relativePath,
+        workspace_path: workspacePath,
+      });
+
+      await this.deleteImageFromDb(relativePath);
+    } catch (error) {
+      console.error("Failed to delete image:", error);
+      throw error;
+    }
+  }
+
+  async getImageAbsolutePath(
+    relativePath: string,
+    workspacePath: string
+  ): Promise<string> {
+    try {
+      return await invoke("get_image_absolute_path", {
+        relative_path: relativePath,
+        workspace_path: workspacePath,
+      });
+    } catch (error) {
+      console.error("Failed to get image absolute path:", error);
+      throw error;
+    }
   }
 }
 
