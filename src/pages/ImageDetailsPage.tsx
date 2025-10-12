@@ -160,15 +160,6 @@ const ImageDetailsPage: React.FC = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const formatDate = (dateString: string): string => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleString();
-    } catch {
-      return "Unknown";
-    }
-  };
-
   const handleRename = async () => {
     if (!newName.trim() || newName === currentImage.name) {
       setIsEditing(false);
