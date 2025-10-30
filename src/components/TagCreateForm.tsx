@@ -56,7 +56,9 @@ const ComponentName: React.FC<Props> = ({
 
       <div className="space-y-3">
         <div>
-          <label className="block text-sm font-medium mb-1">Tag Name</label>
+          <label className="block text-sm font-medium mb-1 text-primary">
+            Tag Name
+          </label>
           <input
             type="text"
             value={newTagName}
